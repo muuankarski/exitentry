@@ -1,0 +1,156 @@
+- [Back to index](index.html)
+
+<link href="http://markuskainu.fi/r-tutorial/css/rtutorial.css" rel="stylesheet" type="text/css" title="compact"></link> 
+<link href='http://fonts.googleapis.com/css?family=Alegreya+SC|Dosis:400,200' rel='stylesheet' type='text/css'>
+
+`This document was compiled at:`
+```{r, echo=FALSE}
+Sys.time()
+```
+---
+
+# Subsetting & merging the dataset for analysis
+
+This is all pretty straightforward based on misc. code from other projects. One tricky task is to extract newly born babies and mothers who have given birth. That is explained bit further down.
+
+## Subsetting the personal data
+
+Tasks to be performed:
+
+1. loading the yearly, personal level merged panel datasets
+2. subsetting same variables from each datasets
+3. combining the datasets with identical variables
+4. subsetting only cases with unique `year-cntry-personal id` -combination
+
+
+```{rsubsetloadmergedpersonalfiles, eval=TRUE, cache=TRUE}
+# Load the merged personal level panel datasets
+load("~/workspace/data/eu_silc/2008/longi_rev3/per_merge.RData")
+per_merge08 <- per_merge
+load("~/workspace/data/eu_silc/2009/longi_rev3/per_merge.RData")
+per_merge09 <- per_merge
+load("~/workspace/data/eu_silc/2010/longi_rev1/per_merge.RData")
+per_merge10 <- per_merge
+rm(per_merge)
+
+```
+
+Following variables are selected:
+
+From **personal register**
+
+varname                                         label
+-------------------------------------------     ----------
+PER_ID                                          unique year, cntry, personal ID
+[RB010](http://www.gesis.org/?id=8062#RB010)    year
+[RB020](http://www.gesis.org/?id=8062#RB020)    cntry
+[RB030](http://www.gesis.org/?id=8062#RB030)    Personal ID
+[RB040](http://www.gesis.org/?id=8062#RB040)    Current Household ID
+[RB060](http://www.gesis.org/?id=8062#RB060)    Personal base weight
+[RB080](http://www.gesis.org/?id=8062#RB080)    Year of birth
+[RB090](http://www.gesis.org/?id=8062#RB090)    Sex
+[RB110](http://www.gesis.org/?id=8062#RB110)    Membership status
+[RB210](http://www.gesis.org/?id=8062#RB210)    Basic activity status
+[RB230](http://www.gesis.org/?id=8062#RB230)    Mother ID
+[RX010](http://www.gesis.org/?id=8062#RX010)    Age at the date of the interview
+[RX020](http://www.gesis.org/?id=8062#RX020)    Age at the end of the income reference period
+
+From **personal data**
+
+varname                                         label
+-------------------------------------------     ----------
+[PB190](http://www.gesis.org/?id=8063#PB190)    Marital status
+[PB200](http://www.gesis.org/?id=8063#PB200)    Consensual union
+[PL030](http://www.gesis.org/?id=8063#PL030)    Self-defined current economic status
+[PL040](http://www.gesis.org/?id=8063#PL040)    Status in employment
+[PY010N](http://www.gesis.org/?id=8063#PY010N)  Employee cash or near cash income(net)
+
+
+
+```{rsubsetsubset, cache=TRUE}
+# list of variables to be analysed
+var.list <- c("PER_ID", # unique year, cntry, personal ID
+              "RB010",  # year
+              "RB020",  # cntry
+              "RB030",  # Personal ID
+              "RB040",  # Current Household ID
+              "RB060",  # Personal base weight
+              "RB080",  # Year of birth
+              "RB090",  # Sex
+              "RB110",  # Membership status (4 Newly born into 
+                                            # this household 
+                                            # since last wave)
+              "RB210",  # Basic activity status
+              "RB230",  # Mother ID
+              "RX010",  # Age at the date of the interview
+              "RX020",  # Age at the end of the income reference period
+# ----------- from personal data ----------------------
+              "PB190",  # Marital status
+              "PB200",  # Consensual union
+              "PL030",  # Self-defined current economic status
+              "PL040",  # Status in employment
+              "PY010N") # Employee cash or near cash income(net)
+
+dat <- rbind(per_merge08[,var.list],
+             per_merge09[,var.list],
+             per_merge10[,var.list])
+
+dat$dup <- duplicated(dat$PER_ID)
+dat.uniq <- dat[dat$dup == FALSE,]
+dat.uniq$dup <- NULL
+
+```
+
+## Subsetting the households data
+
+
+From **household register**
+
+varname                                         label
+-------------------------------------------     ----------
+[PB190](http://www.gesis.org/?id=8063#PB190)    Marital status
+
+
+
+
+
+
+# Making sense of the newly born babies and their mothers
+
+
+
+
+# Summary tables
+
+```{rsubsetsum1, cache=TRUE}
+summary(dat.uniq)
+
+```
+
+```{rsubsetsum2, cache=TRUE}
+str(dat.uniq)
+
+```
+
+```{rsubsetsum3, cache=TRUE}
+library(psych)
+describe(dat.uniq)
+
+```
+
+# Plotting the data
+
+## Cash income in Sweden
+
+```{rsubsetfig1, eval=FALSE, fig.cap="kuva1", cache=TRUE}
+library(ggplot2)
+dfx <- dat.uniq[dat.uniq$RB020 == "SE",]
+ggplot(dfx, aes(x=RB010,
+                y=PY010N,
+                group=RB030)) +
+  geom_line() + geom_point()
+```
+
+
+
+

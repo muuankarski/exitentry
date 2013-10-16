@@ -1,0 +1,123 @@
+- [Back to index](index.html)
+
+<link href="http://markuskainu.fi/r-tutorial/css/rtutorial.css" rel="stylesheet" type="text/css" title="compact"></link> 
+<link href='http://fonts.googleapis.com/css?family=Alegreya+SC|Dosis:400,200' rel='stylesheet' type='text/css'>
+
+`This document was compiled at:`
+```{r, echo=FALSE}
+Sys.time()
+```
+---
+
+# Merging the original datafiles
+
+1. Reading the original .csv files
+2. merging the at the
+    - household level
+    - individual level
+    - merging the household data with individual level data
+3. saving the merged data files as
+    - `hh_merge.RData`
+    - `per_merge.RData`
+    - `merge.RData`
+
+```{rloadandmerge,eval=FALSE}
+library(plyr)
+# Longitudinal
+#-------------------------------------------------------------------
+#--------------------------------------------------------------------#
+## 2010/longi_rev1/
+#--------------------------------------------------------------------#
+# household register 
+hh_reg <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2010/longi_rev1/d_file.csv", header=TRUE)
+hh_reg$HH_ID <- factor(paste(hh_reg$DB010,hh_reg$DB020,hh_reg$DB030, sep="_"))
+# household data
+hh_data <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2010/longi_rev1/h_file.csv", header=TRUE)
+hh_data$HH_ID <- factor(paste(hh_data$HB010,hh_data$HB020,hh_data$HB030, sep="_"))
+# personal register
+per_reg <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2010/longi_rev1/r_file.csv", header=TRUE)
+per_reg$PER_ID <- factor(paste(per_reg$RB010,per_reg$RB020,per_reg$RB030, sep="_"))
+# personal data
+per_data <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2010/longi_rev1/p_file.csv", header=TRUE)
+per_data$PER_ID <- factor(paste(per_data$PB010,per_data$PB020,per_data$PB030, sep="_"))
+#--------------------------------------------------------------------#
+# merge data
+# merge household datas
+hh_merge <- join(hh_reg,hh_data,by="HH_ID", type="full")
+# merge personal datas
+per_merge <- join(per_reg,per_data,by="PER_ID", type="full")
+per_merge$HH_ID <- factor(paste(per_merge$RB010,per_merge$RB020,per_merge$PX030, sep="_"))
+# merge household and personal into single data
+#merge <- join(hh_merge,per_merge,by="HH_ID", type="full")
+#--------------------------------------------------------------------#
+# Write merged file separate .RData files
+save(hh_merge, file="~/workspace/data/eu_silc/2010/longi_rev1/hh_merge.RData")
+save(per_merge, file="~/workspace/data/eu_silc/2010/longi_rev1/per_merge.RData")
+#save(merge, file="~/workspace/data/eu_silc/2010/longi_rev1/merge.RData")
+rm()
+#--------------------------------------------------------------------#
+#--------------------------------------------------------------------#
+#--------------------------------------------------------------------#
+## 2009/longi_rev3/
+#--------------------------------------------------------------------#
+# household register 
+hh_reg <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2009/longi_rev3/d_file.csv", header=TRUE)
+hh_reg$HH_ID <- factor(paste(hh_reg$DB010,hh_reg$DB020,hh_reg$DB030, sep="_"))
+# household data
+hh_data <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2009/longi_rev3/h_file.csv", header=TRUE)
+hh_data$HH_ID <- factor(paste(hh_data$HB010,hh_data$HB020,hh_data$HB030, sep="_"))
+# personal register
+per_reg <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2009/longi_rev3/r_file.csv", header=TRUE)
+per_reg$PER_ID <- factor(paste(per_reg$RB010,per_reg$RB020,per_reg$RB030, sep="_"))
+# personal data
+per_data <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2009/longi_rev3/p_file.csv", header=TRUE)
+per_data$PER_ID <- factor(paste(per_data$PB010,per_data$PB020,per_data$PB030, sep="_"))
+#--------------------------------------------------------------------#
+# merge data
+# merge household datas
+hh_merge <- join(hh_reg,hh_data,by="HH_ID", type="full")
+# merge personal datas
+per_merge <- join(per_reg,per_data,by="PER_ID", type="full")
+per_merge$HH_ID <- factor(paste(per_merge$RB010,per_merge$RB020,per_merge$PX030, sep="_"))
+# merge household and personal into single data
+#merge <- join(hh_merge,per_merge,by="HH_ID", type="full")
+#--------------------------------------------------------------------#
+# Write merged file separate .RData files
+save(hh_merge, file="~/workspace/data/eu_silc/2009/longi_rev3/hh_merge.RData")
+save(per_merge, file="~/workspace/data/eu_silc/2009/longi_rev3/per_merge.RData")
+#save(merge, file="~/workspace/data/eu_silc/2009/longi_rev3/merge.RData")
+rm()
+#--------------------------------------------------------------------#
+#--------------------------------------------------------------------#
+## 2008/longi_rev3/
+#--------------------------------------------------------------------#
+# household register 
+hh_reg <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2008/longi_rev3/d_file.csv", header=TRUE)
+hh_reg$HH_ID <- factor(paste(hh_reg$DB010,hh_reg$DB020,hh_reg$DB030, sep="_"))
+# household data
+hh_data <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2008/longi_rev3/h_file.csv", header=TRUE)
+hh_data$HH_ID <- factor(paste(hh_data$HB010,hh_data$HB020,hh_data$HB030, sep="_"))
+# personal register
+per_reg <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2008/longi_rev3/r_file.csv", header=TRUE)
+per_reg$PER_ID <- factor(paste(per_reg$RB010,per_reg$RB020,per_reg$RB030, sep="_"))
+# personal data
+per_data <- read.csv("/media/baikal/Asiakirjat/data/eu_silc/2008/longi_rev3/p_file.csv", header=TRUE)
+per_data$PER_ID <- factor(paste(per_data$PB010,per_data$PB020,per_data$PB030, sep="_"))
+#--------------------------------------------------------------------#
+# merge data
+# merge household datas
+hh_merge <- join(hh_reg,hh_data,by="HH_ID", type="full")
+# merge personal datas
+per_merge <- join(per_reg,per_data,by="PER_ID", type="full")
+per_merge$HH_ID <- factor(paste(per_merge$RB010,per_merge$RB020,per_merge$PX030, sep="_"))
+# merge household and personal into single data
+#merge <- join(hh_merge,per_merge,by="HH_ID", type="full")
+#--------------------------------------------------------------------#
+# Write merged file separate .RData files
+save(hh_merge, file="~/workspace/data/eu_silc/2008/longi_rev3/hh_merge.RData")
+save(per_merge, file="~/workspace/data/eu_silc/2008/longi_rev3/per_merge.RData")
+#save(merge, file="~/workspace/data/eu_silc/2008/longi_rev3/merge.RData")
+
+```
+
+
