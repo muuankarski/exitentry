@@ -67,7 +67,7 @@ varname                                         label
 
 
 
-```{rsubsetsubset, cache=TRUE}
+```{rsubsetsubsetpersonal, cache=TRUE}
 # list of variables to be analysed
 var.list <- c("PER_ID", # unique year, cntry, personal ID
               "RB010",  # year
@@ -77,9 +77,7 @@ var.list <- c("PER_ID", # unique year, cntry, personal ID
               "RB060",  # Personal base weight
               "RB080",  # Year of birth
               "RB090",  # Sex
-              "RB110",  # Membership status (4 Newly born into 
-                                            # this household 
-                                            # since last wave)
+              "RB110",  # Membership status
               "RB210",  # Basic activity status
               "RB230",  # Mother ID
               "RX010",  # Age at the date of the interview
@@ -98,24 +96,168 @@ dat <- rbind(per_merge08[,var.list],
 dat$dup <- duplicated(dat$PER_ID)
 dat.uniq <- dat[dat$dup == FALSE,]
 dat.uniq$dup <- NULL
-
+dat.per <- dat.uniq
+head(dat.per)
 ```
 
 ## Subsetting the households data
 
 
-From **household register**
+```{rsubsetloadmergedhouseholdfiles, eval=TRUE, cache=TRUE}
+# Load the merged household level panel datasets
+load("~/workspace/data/eu_silc/2008/longi_rev3/hh_merge.RData")
+hh_merge08 <- hh_merge
+load("~/workspace/data/eu_silc/2009/longi_rev3/hh_merge.RData")
+hh_merge09 <- hh_merge
+load("~/workspace/data/eu_silc/2010/longi_rev1/hh_merge.RData")
+hh_merge10 <- hh_merge
+rm(hh_merge)
+
+```
+
+From **household data**
 
 varname                                         label
 -------------------------------------------     ----------
-[PB190](http://www.gesis.org/?id=8063#PB190)    Marital status
+[HB010](http://www.gesis.org/?id=8061#HB010)    Year of the survey
+[HB020](http://www.gesis.org/?id=8061#HB020)    Country
+[HB030](http://www.gesis.org/?id=8061#HB030)    Household id
+DB110: Household status
+[HY020](http://www.gesis.org/?id=8061#HY020)    total disposable household income
+HX050                                           Equivivalized household size
+HX090                                           Equivivalized household income
+
+```{rsubsetsubsethousehold, cache=TRUE}
+# list of variables to be analysed
+var.list <- c("HH_ID", # unique year, cntry, personal ID
+              "DB010",  # year
+              "DB020",  # cntry
+              "DB030",  # household ID
+              "DB110",  # Household status
+              "HY020",  # Total disposable income
+              "HX050",  # Equivivalized household size
+              "HX090")  # Equivivalized household income
+
+dat <- rbind(hh_merge08[,var.list],
+             hh_merge09[,var.list],
+             hh_merge10[,var.list])
+
+dat$dup <- duplicated(dat$HH_ID)
+dat.uniq <- dat[dat$dup == FALSE,]
+dat.uniq$dup <- NULL
+dat.hh <- dat.uniq
+dat.hh <- dat.hh[!is.na(dat.hh$HX050), ]
+head(dat.hh)
+```
+
+
+# Recoding the entries/exits
+
+## Leaving school for work
+
+```{rsubsetrecodeschool, cache=TRUE, eval=FALSE}
+table(dat.per$PL030)
+
+RB010 <- c(2005,2006,2007,2008,2009,2005,2006,2007,2008,2009)
+PER_ID <- c("1_2005","1_2006","1_2007",
+            "2_2008","2_2009","3_2005",
+            "3_2006","4_2007","4_2008","4_2009")
+PL030 <- c(4,4,1,4,4,4,1,4,1,1)
+df <- data.frame(PER_ID,RB010,PL030)
+
+df.s <- df[df$PL030 == 4, ]
+names(df.s) <- c("PER_ID","yearS","valueS")
+df.w <- df[df$PL030 == 1:2, ]
+names(df.w) <- c("PER_ID","yearW","valueW")
+df.t <- merge(df.s,df.w,by="PER_ID")
+
+df.t$event[df.t$yearS == 2005 & df.t$yearW == 2006] <- "hit"
+df.t$event[df.t$yearS == 2006 & df.t$yearW == 2007] <- "hit"
+df.t$event[df.t$yearS == 2007 & df.t$yearW == 2008] <- "hit"
+df.t$event[df.t$yearS == 2008 & df.t$yearW == 2009] <- "hit"
+df.t$event[df.t$yearS == 2009 & df.t$yearW == 2010] <- "hit"
+
+-> jos sais PER_ID perusteisen datan, jossa toWork muuttuja. joka sais
+arvoja 1/0
 
 
 
 
+schoolTest <- function(x) {
+  if (x == 4) {
+    student <- 1
+  }
+  else 
+    student <- 0
+}
+
+apply(df[,'PL030'], 1, function(x) sum(x))
 
 
-# Making sense of the newly born babies and their mothers
+
+ dat <- data.frame(x=c(1,2), y=c(3,4), z=c(5,6))
+ apply(dat[,c('x','z')], 1, function(x) sum(x) )
+
+
+if (RB010 == x AND PL030 == 4)
+  df$event = 1
+
+priceCalculator <- function(hours, pph=40){
+    net.price <- hours * pph
+    if(hours > 100) {
+      net.price <- net.price * 0.9
+    }
+    round(net.price)
+}
+
+```
+
+
+## Giving birth
+
+Making sense of the newly born babies and their mothers
+
+```{rsubsetrecodebirth, cache=TRUE}
+# Lets extract all the babies
+newborn <- dat.per[dat.per$RB110 == 4,]
+# give that data a new variable birthGiven with value 1 for all 
+newborn$birthGiven <- 1
+# lets merge this back to main data by year,cntry,mother ID/personal ID
+# so that all new var birthGiven is given to mothers of babies
+dat.per.birth <- merge(dat.per,newborn[,c("RB010","RB020","RB230","birthGiven")],
+                  by.x=c("RB010","RB020","RB030"),
+                  by.y=c("RB010","RB020","RB230"),
+                  all.x=TRUE)
+
+```
+
+### Number of births by cntry and year
+
+```{rsubsettablebirth, cache=TRUE}
+df <- dat.per.birth[dat.per.birth$birthGiven == 1,]
+table(df$RB020,df$RB010)
+```
+
+### Age of women given birth by year & country
+
+```{rsubsetfigbirth, cache=TRUE, fig.height=15, fig.width=15}
+library(ggplot2)
+ggplot(data=dat.per.birth[dat.per.birth$birthGiven == 1,], 
+       aes(x=factor(RB010),y=RX010)) + 
+  geom_boxplot() +
+  labs(title="Age of mothers given births by country") +
+  facet_wrap(~RB020)
+
+```
+
+
+
+## Leaving work for pension
+
+```{rsubsetrecodepension, cache=TRUE}
+
+
+```
 
 
 
