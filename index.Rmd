@@ -1,26 +1,25 @@
-% Welfare State Entry and Exit
+% Welfare State Entry and Exit: Combatting macro-economic and life-course sustainability deficit in Europe
 % Data Analysis by Markus Kainu
 % file: index.html
-- [Back to index](index.html)
 
+<link href="http://markuskainu.fi/material/css/rmarkdown.css" rel="stylesheet" type="text/css" title="compact"></link>
 
-<link href="http://markuskainu.fi/r-tutorial/css/rtutorial.css" rel="stylesheet" type="text/css" title="compact"></link> 
-<link href='http://fonts.googleapis.com/css?family=Alegreya+SC|Dosis:400,200' rel='stylesheet' type='text/css'>
-
-`This document was compiled at:`
+`generated at:`
 ```{r, echo=FALSE}
 Sys.time()
 ```
----
 
 
 # Description
 
-Analysis are written in [R](http://r-project.org) and the outputs are generated using [knitr](http://yihui.name/knitr/)-package into simple html-files. This page works as an index linking all the phases of the analysis together. Each page provide a time stamp at the top indicating the last time of generation. A full version history is stored by the author. 
+- Analysis are written in [R](http://r-project.org) and the outputs are generated using [knitr](http://yihui.name/knitr/)-package into simple html-files. 
+- This page works as an index linking all the phases of the analysis together. Each page provide a time stamp at the top indicating the last time of generation. 
+- A full version history is stored by the author. 
+- There are **no data** within this site, only text & graphic outputs.
 
-There are **no data** within this site, only text & graphic outputs.
 
 # General resources
+
 - [Etherpad for collaborative writing](http://muuankarski.muistio.tieke.fi/EuSilcPanel2013)
 - [Gesis: EU-silc documentation](http://www.gesis.org/en/services/data-analysis/official-microdata/european-microdata/eu-silc/eu-silc-further-information/)
 
@@ -33,7 +32,6 @@ There are **no data** within this site, only text & graphic outputs.
 - [diagnostics & missing data](missing.html)
 
 ## Descriptive statistics
-
 
 
 ## Modelling the data

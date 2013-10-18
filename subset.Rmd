@@ -1,17 +1,54 @@
 - [Back to index](index.html)
 
-<link href="http://markuskainu.fi/r-tutorial/css/rtutorial.css" rel="stylesheet" type="text/css" title="compact"></link> 
-<link href='http://fonts.googleapis.com/css?family=Alegreya+SC|Dosis:400,200' rel='stylesheet' type='text/css'>
+<link href="http://markuskainu.fi/material/css/rmarkdown.css" rel="stylesheet" type="text/css" title="compact"></link>
 
-`This document was compiled at:`
-```{r, echo=FALSE}
+`generated at:`
+```{r}
 Sys.time()
 ```
----
+
+```{ropts}
+opts_chunk$set(echo=FALSE,eval=FALSE, cache=TRUE)
+```
+
+
 
 # Subsetting & merging the dataset for analysis
 
-This is all pretty straightforward based on misc. code from other projects. One tricky task is to extract newly born babies and mothers who have given birth. That is explained bit further down.
+In this file the exit/entry events are coded. Main source of information on the events are variables [PL030](http://www.gesis.org/?id=8063#PL030) (*Self-defined current economic status*) and [RB110](http://www.gesis.org/?id=8062#RB110) (*Membership status*).
+
+Table: values and labels in variable [PL030](http://www.gesis.org/?id=8063#PL030) (actually PL031 !!)
+
+Value Label
+----- -----------------------------
+1     Employee working full-time
+2     Employee working part-time
+3     Self-employed working full-time (including family worker)
+4     Self-employed working part-time (including family worker)
+5     Unemployed
+6     Pupil, student, further training, unpaid work experience
+7     In retirement or in early retirement or has given up business
+8     Permanently disabled or/and unfit to work
+9     In compulsory military community or service
+10    Fulfilling domestic tasks and care responsibilities
+11    Other inactive person
+
+
+Table: values and labels in variable [RB110](http://www.gesis.org/?id=8062#RB110) (*Membership status*)
+
+Value                             Label
+-----                             -----------------------------
+**For current household members**
+1                                 Was in this household in previous waves or current household member
+2                                 Moved into this household from another sample household since previous wave
+3                                 Move into this household from outside sample since previous wave
+4                                 Newly born into this household since last wave
+**Not current household members**
+5                                 Moved out since previous wave or last interview if not contacted in previous wave
+6                                 Died
+7                                 Lived in the household at least three months during the i
+
+
 
 ## Subsetting the personal data
 
@@ -23,7 +60,7 @@ Tasks to be performed:
 4. subsetting only cases with unique `year-cntry-personal id` -combination
 
 
-```{rsubsetloadmergedpersonalfiles, eval=TRUE, cache=TRUE}
+```{rsubsetloadmergedpersonalfiles,eval=FALSE}
 # Load the merged personal level panel datasets
 load("~/workspace/data/eu_silc/2008/longi_rev3/per_merge.RData")
 per_merge08 <- per_merge
@@ -33,6 +70,87 @@ load("~/workspace/data/eu_silc/2010/longi_rev1/per_merge.RData")
 per_merge10 <- per_merge
 rm(per_merge)
 
+# A joint variable of var (PL030/PL031",  # Self-defined current economic status)
+# have to constructed before subsetting the data
+#
+# let's code var econStatus by taking the PL031 as a bechmark
+# before making any corrections let's recode var PL030 using 
+# PL031 classes into var PL030rec
+# 2008
+per_merge08$PL030rec[per_merge08$PL030 == 1] <- 1
+per_merge08$PL030rec[per_merge08$PL030 == 2] <- 2
+per_merge08$PL030rec[per_merge08$PL030 == 3] <- 5
+per_merge08$PL030rec[per_merge08$PL030 == 4] <- 6
+per_merge08$PL030rec[per_merge08$PL030 == 5] <- 7
+per_merge08$PL030rec[per_merge08$PL030 == 6] <- 8
+per_merge08$PL030rec[per_merge08$PL030 == 7] <- 9
+per_merge08$PL030rec[per_merge08$PL030 == 8] <- 10
+per_merge08$PL030rec[per_merge08$PL030 == 9] <- 11
+# 2009
+per_merge09$PL030rec[per_merge09$PL030 == 1] <- 1
+per_merge09$PL030rec[per_merge09$PL030 == 2] <- 2
+per_merge09$PL030rec[per_merge09$PL030 == 3] <- 5
+per_merge09$PL030rec[per_merge09$PL030 == 4] <- 6
+per_merge09$PL030rec[per_merge09$PL030 == 5] <- 7
+per_merge09$PL030rec[per_merge09$PL030 == 6] <- 8
+per_merge09$PL030rec[per_merge09$PL030 == 7] <- 9
+per_merge09$PL030rec[per_merge09$PL030 == 8] <- 10
+per_merge09$PL030rec[per_merge09$PL030 == 9] <- 11
+# 2010
+per_merge10$PL030rec[per_merge10$PL030 == 1] <- 1
+per_merge10$PL030rec[per_merge10$PL030 == 2] <- 2
+per_merge10$PL030rec[per_merge10$PL030 == 3] <- 5
+per_merge10$PL030rec[per_merge10$PL030 == 4] <- 6
+per_merge10$PL030rec[per_merge10$PL030 == 5] <- 7
+per_merge10$PL030rec[per_merge10$PL030 == 6] <- 8
+per_merge10$PL030rec[per_merge10$PL030 == 7] <- 9
+per_merge10$PL030rec[per_merge10$PL030 == 8] <- 10
+per_merge10$PL030rec[per_merge10$PL030 == 9] <- 11
+
+# then we have to fill in missing values in PL031 with
+# values in PL030rec
+# let's create a PL031 with only NA values
+per_merge08$PL031 <- NA
+
+per_merge08$econStatus <- ifelse(is.na(per_merge08$PL031),  per_merge08$PL030rec, per_merge08$PL031)
+per_merge09$econStatus <- ifelse(is.na(per_merge09$PL031),  per_merge09$PL030rec, per_merge09$PL031)
+per_merge10$econStatus <- ifelse(is.na(per_merge10$PL031),  per_merge10$PL030rec, per_merge10$PL031)
+
+
+# list of variables to be analysed
+var.list <- c("PER_ID_Y", # unique year, cntry, personal ID
+              "PER_ID", # unique cntry, personal ID
+              "RB010",  # year
+              "RB020",  # cntry
+              "RB030",  # Personal ID
+              "RB040",  # Current Household ID
+              "RB060",  # Personal base weight
+              "RB080",  # Year of birth
+              "RB090",  # Sex
+              "RB110",  # Membership status
+              "RB210",  # Basic activity status
+              "RB230",  # Mother ID
+              "RX010",  # Age at the date of the interview
+              "RX020",  # Age at the end of the income reference period
+# ----------- from personal data ----------------------
+              "PB190",  # Marital status
+              "PB200",  # Consensual union
+              "econStatus",  # Self-defined current economic status
+              "PY140G", # Education-related allowances(gross)
+              "PL040",  # Status in employment
+              "PY010N") # Employee cash or near cash income(net)
+
+dat <- rbind(per_merge08[,var.list],
+             per_merge09[,var.list],
+             per_merge10[,var.list])
+
+# merge the panels datas
+dat$dup <- duplicated(dat$PER_ID_Y)
+dat.uniq <- dat[dat$dup == FALSE,]
+dat.uniq$dup <- NULL
+dat.per <- dat.uniq
+#save(dat.per, file="data/dat.per.RData")
+head(dat.per)
 ```
 
 Following variables are selected:
@@ -67,43 +185,12 @@ varname                                         label
 
 
 
-```{rsubsetsubsetpersonal, cache=TRUE}
-# list of variables to be analysed
-var.list <- c("PER_ID", # unique year, cntry, personal ID
-              "RB010",  # year
-              "RB020",  # cntry
-              "RB030",  # Personal ID
-              "RB040",  # Current Household ID
-              "RB060",  # Personal base weight
-              "RB080",  # Year of birth
-              "RB090",  # Sex
-              "RB110",  # Membership status
-              "RB210",  # Basic activity status
-              "RB230",  # Mother ID
-              "RX010",  # Age at the date of the interview
-              "RX020",  # Age at the end of the income reference period
-# ----------- from personal data ----------------------
-              "PB190",  # Marital status
-              "PB200",  # Consensual union
-              "PL030",  # Self-defined current economic status
-              "PL040",  # Status in employment
-              "PY010N") # Employee cash or near cash income(net)
 
-dat <- rbind(per_merge08[,var.list],
-             per_merge09[,var.list],
-             per_merge10[,var.list])
-
-dat$dup <- duplicated(dat$PER_ID)
-dat.uniq <- dat[dat$dup == FALSE,]
-dat.uniq$dup <- NULL
-dat.per <- dat.uniq
-head(dat.per)
-```
 
 ## Subsetting the households data
 
 
-```{rsubsetloadmergedhouseholdfiles, eval=TRUE, cache=TRUE}
+```{rsubsetloadmergedhouseholdfiles,eval=FALSE}
 # Load the merged household level panel datasets
 load("~/workspace/data/eu_silc/2008/longi_rev3/hh_merge.RData")
 hh_merge08 <- hh_merge
@@ -113,6 +200,30 @@ load("~/workspace/data/eu_silc/2010/longi_rev1/hh_merge.RData")
 hh_merge10 <- hh_merge
 rm(hh_merge)
 
+
+# list of variables to be analysed
+var.list <- c("HH_ID_Y", # unique year, cntry, personal ID
+              "HH_ID", # unique cntry, personal ID
+              "DB010",  # year
+              "DB020",  # cntry
+              "DB030",  # household ID
+              "DB110",  # Household status
+              "HY020",  # Total disposable income
+              "HX050",  # Equivivalized household size
+              "HX090",  # Equivivalized household income
+              "HX100")  # Income quintiles
+
+dat <- rbind(hh_merge08[,var.list],
+             hh_merge09[,var.list],
+             hh_merge10[,var.list])
+
+dat$dup <- duplicated(dat$HH_ID)
+dat.uniq <- dat[dat$dup == FALSE,]
+dat.uniq$dup <- NULL
+dat.hh <- dat.uniq
+dat.hh <- dat.hh[!is.na(dat.hh$HX050), ]
+#save(dat.hh, file="data/dat.hh.RData")
+head(dat.hh)
 ```
 
 From **household data**
@@ -127,88 +238,155 @@ DB110: Household status
 HX050                                           Equivivalized household size
 HX090                                           Equivivalized household income
 
-```{rsubsetsubsethousehold, cache=TRUE}
-# list of variables to be analysed
-var.list <- c("HH_ID", # unique year, cntry, personal ID
-              "DB010",  # year
-              "DB020",  # cntry
-              "DB030",  # household ID
-              "DB110",  # Household status
-              "HY020",  # Total disposable income
-              "HX050",  # Equivivalized household size
-              "HX090")  # Equivivalized household income
-
-dat <- rbind(hh_merge08[,var.list],
-             hh_merge09[,var.list],
-             hh_merge10[,var.list])
-
-dat$dup <- duplicated(dat$HH_ID)
-dat.uniq <- dat[dat$dup == FALSE,]
-dat.uniq$dup <- NULL
-dat.hh <- dat.uniq
-dat.hh <- dat.hh[!is.na(dat.hh$HX050), ]
-head(dat.hh)
-```
 
 
 # Recoding the entries/exits
 
 ## Leaving school for work
 
-```{rsubsetrecodeschool, cache=TRUE, eval=FALSE}
-table(dat.per$PL030)
-
-RB010 <- c(2005,2006,2007,2008,2009,2005,2006,2007,2008,2009)
-PER_ID <- c("1_2005","1_2006","1_2007",
-            "2_2008","2_2009","3_2005",
-            "3_2006","4_2007","4_2008","4_2009")
-PL030 <- c(4,4,1,4,4,4,1,4,1,1)
-df <- data.frame(PER_ID,RB010,PL030)
-
-df.s <- df[df$PL030 == 4, ]
-names(df.s) <- c("PER_ID","yearS","valueS")
-df.w <- df[df$PL030 == 1:2, ]
-names(df.w) <- c("PER_ID","yearW","valueW")
-df.t <- merge(df.s,df.w,by="PER_ID")
-
-df.t$event[df.t$yearS == 2005 & df.t$yearW == 2006] <- "hit"
-df.t$event[df.t$yearS == 2006 & df.t$yearW == 2007] <- "hit"
-df.t$event[df.t$yearS == 2007 & df.t$yearW == 2008] <- "hit"
-df.t$event[df.t$yearS == 2008 & df.t$yearW == 2009] <- "hit"
-df.t$event[df.t$yearS == 2009 & df.t$yearW == 2010] <- "hit"
-
--> jos sais PER_ID perusteisen datan, jossa toWork muuttuja. joka sais
-arvoja 1/0
 
 
 
 
-schoolTest <- function(x) {
-  if (x == 4) {
-    student <- 1
-  }
-  else 
-    student <- 0
-}
+Based on the analysis above, I have create a variable called `educ`with value `1` for education and `0` for non-education. It is calculated from variable [`PY140G/PY140N`](http://www.gesis.org/?id=8063#PY140G) (Education-related allowances) in a following manner
 
-apply(df[,'PL030'], 1, function(x) sum(x))
+- if value is 0 or less or NA -> `0`
+- other values -> `1`
+
+```{rsubsetdefinestudent}
+#######
+load("data/dat.per.RData")
+####### 
+dat.per$educ[dat.per$PY140G <= 0] <- 0
+dat.per$educ[is.na(dat.per$PY140G)] <- 0
+dat.per$educ[dat.per$PY140G > 0] <- 1
+# what we got
+summary(factor(dat.per$educ))
+```
+
+So, we have the variable now, then we need to find out **whose status has changed from 1 to 0 at AND who is full- or part-time employed at that time**?
+
+Let's use the `educ`-variable and [RB210](http://www.gesis.org/?id=8062#RB210) variable that get's value 1 if person is at work.
+
+Value   label
+-----   -----
+1 	    at work
+2 	    unemployed
+3 	    in retirement or early retirement
+4 	    other inactive person
+
+So we reason that if person is not reveiving student benefits and is at work, then his/her main status is `at work = 1`. If  
 
 
+```{rsubsetrecodeschool}
+#dat.per$status <- NULL
+dat.per$status[dat.per$educ == 1 & dat.per$RB210 == 4] <- 5
+dat.per$status[dat.per$educ == 0 & dat.per$RB210 == 1] <- 1
+dat.per$status[dat.per$RB210 == 2] <- 2
+dat.per$status[dat.per$RB210 == 3] <- 3
+dat.per$status[dat.per$educ == 0 & dat.per$RB210 == 4] <- 4
 
- dat <- data.frame(x=c(1,2), y=c(3,4), z=c(5,6))
- apply(dat[,c('x','z')], 1, function(x) sum(x) )
+library(reshape2)
+df.wide <- dcast(dat.per, PER_ID + RB020 + 
+                   RB030 ~ RB010, 
+                 value.var = "status")
+names(df.wide) <- c("PER_ID","RB020","RB030",
+                    "x2005","x2006","x2007",
+                    "x2008","x2009","x2010")
+df.wide$school06[df.wide$x2005 == 5 & df.wide$x2006 == 1] <- 1
+df.wide$school07[df.wide$x2006 == 5 & df.wide$x2007 == 1] <- 1
+df.wide$school08[df.wide$x2007 == 5 & df.wide$x2008 == 1] <- 1
+df.wide$school09[df.wide$x2008 == 5 & df.wide$x2009 == 1] <- 1
+df.wide$school10[df.wide$x2009 == 5 & df.wide$x2010 == 1] <- 1
+
+head(df.wide)
+
+df.long <- melt(df.wide, id.vars =c("PER_ID",
+                                    "RB020","RB030"), 
+                measure.vars=c("school06","school07",
+                               "school08","school09",
+                               "school10"))
+names(df.long) <- c("PER_ID","RB020","RB030",
+                    "year","workEntry")
+
+df.long$year <- as.character(df.long$year)
+df.long$year[df.long$year == "school06"] <- "2006"
+df.long$year[df.long$year == "school07"] <- "2007"
+df.long$year[df.long$year == "school08"] <- "2008"
+df.long$year[df.long$year == "school09"] <- "2009"
+df.long$year[df.long$year == "school10"] <- "2010"
+
+df.long$year <- factor(df.long$year)
+df.long$year <- as.numeric(levels(df.long$year))[df.long$year]
+
+df.long <- df.long[!is.na(df.long$workEntry), ]
+
+datEntW <- merge(df.long[,c("RB020","RB030","year","workEntry")],dat.per, 
+                  by=c("RB020","RB030"), all.x=TRUE)
+
+datT <- datEntW[datEntW$year==datEntW$RB010,]
+# before
+datTm1 <- datEntW[datEntW$year==(datEntW$RB010+1),]
+datTm2 <- datEntW[datEntW$year==(datEntW$RB010+2),]
+datTm3 <- datEntW[datEntW$year==(datEntW$RB010+3),]
+# after
+datTp1 <- datEntW[datEntW$year==(datEntW$RB010-1),]
+datTp2 <- datEntW[datEntW$year==(datEntW$RB010-2),]
+datTp3 <- datEntW[datEntW$year==(datEntW$RB010-3),]
+
+datT <- datT[, c("PER_ID","PY010N","RB020")]
+names(datT) <- c("PER_ID","incomeT","RB020")
+datTm1 <- datTm1[, c("PER_ID","PY010N","RB020")]
+names(datTm1) <- c("PER_ID","incomeTmin1","RB020")
+datTm2 <- datTm2[, c("PER_ID","PY010N","RB020")]
+names(datTm2) <- c("PER_ID","incomeTmin2","RB020")
+datTm3 <- datTm3[, c("PER_ID","PY010N","RB020")]
+names(datTm3) <- c("PER_ID","incomeTmin3","RB020")
+datTp1 <- datTp1[, c("PER_ID","PY010N","RB020")]
+names(datTp1) <- c("PER_ID","incomeTplus1","RB020")
+datTp2 <- datTp2[, c("PER_ID","PY010N","RB020")]
+names(datTp2) <- c("PER_ID","incomeTplus2","RB020")
+datTp3 <- datTp3[, c("PER_ID","PY010N","RB020")]
+names(datTp3) <- c("PER_ID","incomeTplus3","RB020")
+
+dat.plot <- merge(datT,datTm1,by=c(c("PER_ID","RB020"),"RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTm2,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTm3,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTp1,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTp2,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTp3,by=c("PER_ID","RB020"), all.x=TRUE)
 
 
-if (RB010 == x AND PL030 == 4)
-  df$event = 1
+dat.plot[,4] <- dat.plot[,4]/dat.plot[,3] *100
+dat.plot[,5] <- dat.plot[,5]/dat.plot[,3] *100
+dat.plot[,6] <- dat.plot[,6]/dat.plot[,3] *100
+dat.plot[,7] <- dat.plot[,7]/dat.plot[,3] *100
+dat.plot[,8] <- dat.plot[,8]/dat.plot[,3] *100
+dat.plot[,9] <- dat.plot[,9]/dat.plot[,3] *100
+dat.plot[,3] <- dat.plot[,3]/dat.plot[,3] *100
 
-priceCalculator <- function(hours, pph=40){
-    net.price <- hours * pph
-    if(hours > 100) {
-      net.price <- net.price * 0.9
-    }
-    round(net.price)
-}
+library(reshape2)
+dat.plot.l <- melt(dat.plot, id.vars = c("PER_ID","RB020"))
+dat.plot.l$variable <- factor(dat.plot.l$variable, 
+                              levels=c("incomeTmin3","incomeTmin2","incomeTmin1",
+                                       "incomeT",
+                                       "incomeTplus1","incomeTplus2","incomeTplus3"))
+```
+
+
+### Plotting the change in employee cash income due to entering work
+
+In the figure below `IncomeT` stands for time point when *event* took place. `IncomeTmin1`is then one year before and `IncomeTplus1` is one year after and so forth.
+
+All very tentative..
+
+```{rsubsetentryworkplot, fig.height=14, fig.width=14, warning=FALSE}
+ggplot(dat.plot.l, aes(x=variable,y=value,group=PER_ID)) +
+geom_point() + geom_line() +
+coord_cartesian(ylim=c(0,2000)) +
+facet_wrap(~RB020) +
+  labs(title="Change in Employee cash or near cash income(net) when leaving school for work") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
 ```
 
@@ -217,81 +395,237 @@ priceCalculator <- function(hours, pph=40){
 
 Making sense of the newly born babies and their mothers
 
-```{rsubsetrecodebirth, cache=TRUE}
+```{rsubsetrecodebirth}
 # Lets extract all the babies
 newborn <- dat.per[dat.per$RB110 == 4,]
 # give that data a new variable birthGiven with value 1 for all 
 newborn$birthGiven <- 1
 # lets merge this back to main data by year,cntry,mother ID/personal ID
 # so that all new var birthGiven is given to mothers of babies
-dat.per.birth <- merge(dat.per,newborn[,c("RB010","RB020","RB230","birthGiven")],
-                  by.x=c("RB010","RB020","RB030"),
-                  by.y=c("RB010","RB020","RB230"),
+names(newborn)[3] <- "year"
+dim(newborn)
+# babies by year and country
+table(newborn$RB020,newborn$year)
+
+dat.per.birth <- merge(dat.per,newborn[,c("year","RB020","RB230","birthGiven")],
+                  by.x=c("RB020","RB030"),
+                  by.y=c("RB020","RB230"),
                   all.x=TRUE)
-
+dim(dat.per.birth)
 ```
 
-### Number of births by cntry and year
+- some given birth in 2005, those have to be excluded as there are no information from year before
 
-```{rsubsettablebirth, cache=TRUE}
-df <- dat.per.birth[dat.per.birth$birthGiven == 1,]
-table(df$RB020,df$RB010)
-```
 
 ### Age of women given birth by year & country
 
-```{rsubsetfigbirth, cache=TRUE, fig.height=15, fig.width=15}
+```{rsubsetfigbirth, fig.height=15, fig.width=15}
 library(ggplot2)
-ggplot(data=dat.per.birth[dat.per.birth$birthGiven == 1,], 
-       aes(x=factor(RB010),y=RX010)) + 
+datBabyPlot <- dat.per.birth[dat.per.birth$year==dat.per.birth$RB010,]
+ggplot(data=datBabyPlot, 
+       aes(x=order(RB020,RX010),y=RX010)) + 
   geom_boxplot() +
   labs(title="Age of mothers given births by country") +
   facet_wrap(~RB020)
+#sorttaa määrän mukaan
+```
+
+
+
+### Plotting the change in employee cash income due to giving birth
+
+```{rsubsetexitbirthrecode}
+dfz <- dat.per.birth[!is.na(dat.per.birth$birthGiven), ]
+head(df)
+df <- dfz[,c("RB020","PER_ID","RB010","year","PY010N","birthGiven")]
+
+datEntW <- df
+
+datT <- datEntW[datEntW$year==datEntW$RB010,]
+# before
+datTm1 <- datEntW[datEntW$year==(datEntW$RB010+1),]
+datTm2 <- datEntW[datEntW$year==(datEntW$RB010+2),]
+datTm3 <- datEntW[datEntW$year==(datEntW$RB010+3),]
+# after
+datTp1 <- datEntW[datEntW$year==(datEntW$RB010-1),]
+datTp2 <- datEntW[datEntW$year==(datEntW$RB010-2),]
+datTp3 <- datEntW[datEntW$year==(datEntW$RB010-3),]
+
+datT <- datT[, c("PER_ID","PY010N","RB020")]
+names(datT) <- c("PER_ID","incomeT","RB020")
+datTm1 <- datTm1[, c("PER_ID","PY010N","RB020")]
+names(datTm1) <- c("PER_ID","incomeTmin1","RB020")
+datTm2 <- datTm2[, c("PER_ID","PY010N","RB020")]
+names(datTm2) <- c("PER_ID","incomeTmin2","RB020")
+datTm3 <- datTm3[, c("PER_ID","PY010N","RB020")]
+names(datTm3) <- c("PER_ID","incomeTmin3","RB020")
+datTp1 <- datTp1[, c("PER_ID","PY010N","RB020")]
+names(datTp1) <- c("PER_ID","incomeTplus1","RB020")
+datTp2 <- datTp2[, c("PER_ID","PY010N","RB020")]
+names(datTp2) <- c("PER_ID","incomeTplus2","RB020")
+datTp3 <- datTp3[, c("PER_ID","PY010N","RB020")]
+names(datTp3) <- c("PER_ID","incomeTplus3","RB020")
+
+
+dat.plot <- merge(datT,datTm1,    by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTm2,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTm3,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTp1,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTp2,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTp3,by=c("PER_ID","RB020"), all.x=TRUE)
+
+dat.plot[,4] <- dat.plot[,4]/dat.plot[,3] *100
+dat.plot[,5] <- dat.plot[,5]/dat.plot[,3] *100
+dat.plot[,6] <- dat.plot[,6]/dat.plot[,3] *100
+dat.plot[,7] <- dat.plot[,7]/dat.plot[,3] *100
+dat.plot[,8] <- dat.plot[,8]/dat.plot[,3] *100
+dat.plot[,9] <- dat.plot[,9]/dat.plot[,3] *100
+dat.plot[,3] <- dat.plot[,3]/dat.plot[,3] *100
+
+dat.plot$dup <- duplicated(dat.plot$PER_ID)
+dat.plot <- dat.plot[dat.plot$dup == FALSE,]
+
+library(reshape2)
+dat.plot.l <- melt(dat.plot, id.vars = c("PER_ID","RB020"))
+dat.plot.l$variable <- factor(dat.plot.l$variable, 
+                              levels=c("incomeTmin3","incomeTmin2","incomeTmin1",
+                                       "incomeT",
+                                       "incomeTplus1","incomeTplus2","incomeTplus3"))
+```
+
+```{rsubsetexitbirthplot, fig.height=14, fig.width=14, warning=FALSE}
+ggplot(dat.plot.l, aes(x=variable,y=value,group=PER_ID)) +
+geom_point(alpha=.2) + geom_line(alpha=.2) +
+coord_cartesian(ylim=c(0,2000)) +
+facet_wrap(~RB020) +
+  labs(title="Change in Employee cash or near cash income(net) when giving birth") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
 ```
+
 
 
 
 ## Leaving work for pension
 
-```{rsubsetrecodepension, cache=TRUE}
 
+```{rsubsetrecodeexitpension}
+#dat.per$status <- NULL
+dat.per$status <- dat.per$RB210
+
+library(reshape2)
+df.wide <- dcast(dat.per, PER_ID + RB020 + 
+                   RB030 ~ RB010, 
+                 value.var = "status")
+names(df.wide) <- c("PER_ID","RB020","RB030",
+                    "x2005","x2006","x2007",
+                    "x2008","x2009","x2010")
+df.wide$school06[df.wide$x2005 != 3 & df.wide$x2006 == 3] <- 1
+df.wide$school07[df.wide$x2006 != 3 & df.wide$x2007 == 3] <- 1
+df.wide$school08[df.wide$x2007 != 3 & df.wide$x2008 == 3] <- 1
+df.wide$school09[df.wide$x2008 != 3 & df.wide$x2009 == 3] <- 1
+df.wide$school10[df.wide$x2009 != 3 & df.wide$x2010 == 3] <- 1
+
+df.long <- melt(df.wide, id.vars =c("PER_ID",
+                                    "RB020","RB030"), 
+                measure.vars=c("school06","school07",
+                               "school08","school09",
+                               "school10"))
+names(df.long) <- c("PER_ID","RB020","RB030",
+                    "year","workEntry")
+
+df.long$year <- as.character(df.long$year)
+df.long$year[df.long$year == "school06"] <- "2006"
+df.long$year[df.long$year == "school07"] <- "2007"
+df.long$year[df.long$year == "school08"] <- "2008"
+df.long$year[df.long$year == "school09"] <- "2009"
+df.long$year[df.long$year == "school10"] <- "2010"
+
+df.long$year <- factor(df.long$year)
+df.long$year <- as.numeric(levels(df.long$year))[df.long$year]
+
+df.long <- df.long[!is.na(df.long$workEntry), ]
+
+datEntW <- merge(df.long[,c("RB020","RB030","year","workEntry")],dat.per, 
+                  by=c("RB020","RB030"), all.x=TRUE)
+
+datT <- datEntW[datEntW$year==datEntW$RB010,]
+datBabyPlot <- datT # plotataan eläkeläisten iät
+# before
+datTm1 <- datEntW[datEntW$year==(datEntW$RB010+1),]
+datTm2 <- datEntW[datEntW$year==(datEntW$RB010+2),]
+datTm3 <- datEntW[datEntW$year==(datEntW$RB010+3),]
+# after
+datTp1 <- datEntW[datEntW$year==(datEntW$RB010-1),]
+datTp2 <- datEntW[datEntW$year==(datEntW$RB010-2),]
+datTp3 <- datEntW[datEntW$year==(datEntW$RB010-3),]
+
+datT <- datT[, c("PER_ID","PY010N","RB020")]
+names(datT) <- c("PER_ID","incomeT","RB020")
+datTm1 <- datTm1[, c("PER_ID","PY010N","RB020")]
+names(datTm1) <- c("PER_ID","incomeTmin1","RB020")
+datTm2 <- datTm2[, c("PER_ID","PY010N","RB020")]
+names(datTm2) <- c("PER_ID","incomeTmin2","RB020")
+datTm3 <- datTm3[, c("PER_ID","PY010N","RB020")]
+names(datTm3) <- c("PER_ID","incomeTmin3","RB020")
+datTp1 <- datTp1[, c("PER_ID","PY010N","RB020")]
+names(datTp1) <- c("PER_ID","incomeTplus1","RB020")
+datTp2 <- datTp2[, c("PER_ID","PY010N","RB020")]
+names(datTp2) <- c("PER_ID","incomeTplus2","RB020")
+datTp3 <- datTp3[, c("PER_ID","PY010N","RB020")]
+names(datTp3) <- c("PER_ID","incomeTplus3","RB020")
+
+dat.plot <- merge(datT,datTm1,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTm2,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTm3,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTp1,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTp2,by=c("PER_ID","RB020"), all.x=TRUE)
+dat.plot <- merge(dat.plot,datTp3,by=c("PER_ID","RB020"), all.x=TRUE)
+
+dat.plot[,4] <- dat.plot[,4]/dat.plot[,3] *100
+dat.plot[,5] <- dat.plot[,5]/dat.plot[,3] *100
+dat.plot[,6] <- dat.plot[,6]/dat.plot[,3] *100
+dat.plot[,7] <- dat.plot[,7]/dat.plot[,3] *100
+dat.plot[,8] <- dat.plot[,8]/dat.plot[,3] *100
+dat.plot[,9] <- dat.plot[,9]/dat.plot[,3] *100
+dat.plot[,3] <- dat.plot[,3]/dat.plot[,3] *100
+
+dat.plot$dup <- duplicated(dat.plot$PER_ID)
+dat.plot <- dat.plot[dat.plot$dup == FALSE,]
+
+library(reshape2)
+dat.plot.l <- melt(dat.plot, id.vars = c("PER_ID","RB020"))
+dat.plot.l$variable <- factor(dat.plot.l$variable, 
+                              levels=c("incomeTmin3","incomeTmin2","incomeTmin1",
+                                       "incomeT",
+                                       "incomeTplus1","incomeTplus2","incomeTplus3"))
+```
+
+
+### Plotting the change in employee cash income due to exiting to pension
+
+```{rsubsetexitpensionplot, fig.height=14, fig.width=14, warning=FALSE}
+ggplot(dat.plot.l, aes(x=variable,y=value,group=PER_ID)) +
+geom_point() + geom_line() +
+coord_cartesian(ylim=c(0,2000)) +
+facet_wrap(~RB020) +
+  labs(title="Change in Employee cash or near cash income(net) when exiting for pension") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
 ```
 
 
 
-
-# Summary tables
-
-```{rsubsetsum1, cache=TRUE}
-summary(dat.uniq)
-
-```
-
-```{rsubsetsum2, cache=TRUE}
-str(dat.uniq)
+```{rsubsetpensionplot, fig.height=14, fig.width=14, warning=FALSE}
+ggplot(data=datBabyPlot, 
+       aes(x=RB020,y=RX010)) + 
+  geom_boxplot() +
+  labs(title="Age of pensioners by country") +
+  #facet_wrap(~RB020) +
+  coord_cartesian(ylim=c(55,85))
 
 ```
 
-```{rsubsetsum3, cache=TRUE}
-library(psych)
-describe(dat.uniq)
-
-```
-
-# Plotting the data
-
-## Cash income in Sweden
-
-```{rsubsetfig1, eval=FALSE, fig.cap="kuva1", cache=TRUE}
-library(ggplot2)
-dfx <- dat.uniq[dat.uniq$RB020 == "SE",]
-ggplot(dfx, aes(x=RB010,
-                y=PY010N,
-                group=RB030)) +
-  geom_line() + geom_point()
-```
 
 
 

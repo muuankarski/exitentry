@@ -1,3 +1,19 @@
+library(knitr)
+setwd("~/workspace/eusilc/entryexit2013")
+knit("index.Rmd")
+system("~/.cabal/bin/pandoc -s index.md -o index.html --number-section")
+
+knit("load_merge.Rmd")
+system("~/.cabal/bin/pandoc -s load_merge.md -o load_merge.html --toc --number-section")
+
+knit("subset.Rmd")
+system("~/.cabal/bin/pandoc -s subset.md -o subset.html --toc --number-section")
+system("~/.cabal/bin/pandoc subset.md -o subset.pdf --toc --number-section")
+
+knit("missing.Rmd")
+system("~/.cabal/bin/pandoc -s missing.md -o missing.html --toc --number-section")
+
+
 library(kaRski)
 knitpandoc("index")
 # basic operations
