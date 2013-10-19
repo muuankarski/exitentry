@@ -5,6 +5,7 @@
 
 
 <link href="http://markuskainu.fi/material/css/memo.css" rel="stylesheet" type="text/css" title="compact"></link>
+<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
 
 `generated at:`
 ```{r, echo=FALSE}
@@ -147,4 +148,22 @@ barMiss(PY140G_10, only.miss = FALSE)
 ```
 
 
+## Monthly activity records
+
+### Main activity on January
+
+```{rmissingeducationPL210A, fig.height=8, fig.width=10, cache=TRUE}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+PL210A_08 <- per_merge08[, c("RB020", "PL210A")]
+PL210A_09 <- per_merge09[, c("RB020", "PL210A")]
+PL210A_10 <- per_merge10[, c("RB020", "PL210A")]
+
+barMiss(PL210A_08, only.miss = FALSE)
+barMiss(PL210A_09, only.miss = FALSE)
+barMiss(PL210A_10, only.miss = FALSE)
+
+```
 
