@@ -278,26 +278,76 @@ load("data/dat.per.RData")
 
 
 library(reshape2)
+library(plyr)
+
 df.wide <- dcast(dat.per, PER_ID + RB020 + 
-                   RB030 + HX100 ~ RB010, 
+                   RB030 + HX100 + HX090 + PY010G ~ RB010, 
                  value.var = "econStatus")
 
-names(df.wide) <- c("PER_ID","RB020","RB030","HX100",
+names(df.wide) <- c("PER_ID","RB020","RB030","HX100","HX090","PY010G",
                     "x2005","x2006","x2007",
                     "x2008","x2009","x2010")
 
 df.wide$school06[df.wide$x2005 == 6 & df.wide$x2006 %in% 1:4] <- 1
+df.wide$school06[is.na(df.wide$school06)] <- 0
+summary(factor(df.wide$school06))
+summary(df.wide[df.wide$school06 == 1,])
+
+ddply(df.wide, "school06", summarise,
+               N    = length(PY010G),
+               mean = mean(PY010G, na.rm=TRUE),
+               median   = sd(PY010G, na.rm=TRUE))
+
 df.wide$school07[df.wide$x2006 == 6 & df.wide$x2007 %in% 1:4] <- 1
+df.wide$school07[is.na(df.wide$school07)] <- 0
+summary(factor(df.wide$school07))
+summary(df.wide[df.wide$school07 == 1,])
+
+ddply(df.wide, "school07", summarise,
+               N    = length(PY010G),
+               mean = mean(PY010G, na.rm=TRUE),
+               median   = sd(PY010G, na.rm=TRUE))
+
+
 df.wide$school08[df.wide$x2007 == 6 & df.wide$x2008 %in% 1:4] <- 1
+df.wide$school08[is.na(df.wide$school08)] <- 0
+summary(factor(df.wide$school08))
+summary(df.wide[df.wide$school08 == 1,])
+
+ddply(df.wide, "school08", summarise,
+               N    = length(PY010G),
+               mean = mean(PY010G, na.rm=TRUE),
+               median   = sd(PY010G, na.rm=TRUE))
+
+
 df.wide$school09[df.wide$x2008 == 6 & df.wide$x2009 %in% 1:4] <- 1
+df.wide$school09[is.na(df.wide$school09)] <- 0
+summary(factor(df.wide$school09))
+summary(df.wide[df.wide$school09 == 1,])
+
+ddply(df.wide, "school09", summarise,
+               N    = length(PY010G),
+               mean = mean(PY010G, na.rm=TRUE),
+               median   = sd(PY010G, na.rm=TRUE))
+
+
 df.wide$school10[df.wide$x2009 == 6 & df.wide$x2010 %in% 1:4] <- 1
+df.wide$school10[is.na(df.wide$school10)] <- 0
+summary(factor(df.wide$school10))
+summary(df.wide[df.wide$school10 == 1,])
+
+ddply(df.wide, "school10", summarise,
+               N    = length(PY010G),
+               mean = mean(PY010G, na.rm=TRUE),
+               median   = sd(PY010G, na.rm=TRUE))
+
 
 df.long <- melt(df.wide, id.vars =c("PER_ID",
-                                    "RB020","RB030","HX100"), 
+                                    "RB020","RB030","HX100","HX090","PY010G"), 
                 measure.vars=c("school06","school07",
                                "school08","school09",
                                "school10"))
-names(df.long) <- c("PER_ID","RB020","RB030","HX100",
+names(df.long) <- c("PER_ID","RB020","RB030","HX100","HX090","PY010G_Z",
                     "year","schoolExit")
 
 df.long$year <- as.character(df.long$year)
@@ -310,12 +360,20 @@ df.long$year[df.long$year == "school10"] <- "2010"
 df.long$year <- factor(df.long$year)
 df.long$year <- as.numeric(levels(df.long$year))[df.long$year]
 
-df.long <- df.long[!is.na(df.long$schoolExit), ] # all we need are the (ex)-students
+summary(factor(df.long$schoolExit))
 
-datExitStudies <- merge(df.long[,c("RB020","RB030","year","schoolExit")],dat.per, 
+library(plyr)
+ddply(df.long, "schoolExit", summarise,
+               N    = length(PY010G),
+               mean = mean(PY010G, na.rm=TRUE),
+               median   = sd(PY010G, na.rm=TRUE))
+
+df.longx <- df.long[df.long$schoolExit == 1, ] # all we need are the (ex)-students
+
+datExitStudies <- merge(df.longx[,c("RB020","RB030","year","schoolExit")],dat.per, 
                   by=c("RB020","RB030"), all.x=TRUE)
 
-datExitStudies$time <- datExitStudies$year - datExitStudies$RB010
+datExitStudies$time <- datExitStudies$RB010 - datExitStudies$year
 
 #datExitStudies <- datExitStudies[datExitStudies$time >= -1 & datExitStudies$time <= 3,]
 #summary(factor(datExitStudies$time))
@@ -343,29 +401,34 @@ In the figure below `IncomeT` stands for time point when *event* took place. `In
 - on the x-axis 0 means the first year in employment. -1 is the last year as student and 1 is the 1st year after event, eg. 2nd year of employment
 - between country variation in the x-axis values is due to missing data in income var (plot is only illustrative..)
 
+```{rrsubsetentryworkplotAbsobox, fig.height=6, fig.width=12, warning=FALSE, eval=TRUE}
+ggplot(data=datExitStudies, 
+       aes(x=factor(time),y=PY010G)) + 
+  geom_boxplot() +
+  labs(title="Employee cash or near cash income(gross) years before and after exiting to work") +
+```
+
+
 
 ```{rsubsetentryworkplotAbso, fig.height=30, fig.width=12, warning=FALSE, eval=TRUE}
-library(reshape2)
 library(ggplot2)
 ggplot(datExitStudies, aes(x=factor(time),y=PY010G,group=PER_ID)) +
   geom_point(alpha=.2) + geom_line(alpha=.2) +
-  coord_cartesian(ylim=c(0,70000)) +
+  coord_cartesian(ylim=c(0,20000)) +
   facet_wrap(~RB020, ncol=2) +
   labs(title="Change in absolute Employee cash or near cash income(gross) when leaving school for work") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
-  geom_vline(xintercept = 4, color="orange", type="dashed")
+  geom_vline(xintercept = 6, color="orange", type="dashed")
 ```
 
 #### Change in relative income (last year as student = 100)
 
-```{rsubsetentryworkplotRela, fig.height=30, fig.width=12, warning=FALSE, eval=TRUE}
+```{rsubsetentryworkplotRela, fig.height=30, fig.width=12, warning=FALSE, eval=FALSE}
 library(reshape2)
-#summary(factor(duplicated(datExitStudies$PER_ID_Y)))
-## for some reason there are 191 (vs. 29891) duplicates inthe data
-datExitStudies$dup <- duplicated(datExitStudies$PER_ID_Y)
-datExitStudies <- datExitStudies[datExitStudies$dup == FALSE,]
-
 datExitStudies$time <- factor(datExitStudies$time)
+datExitStudies$PY010G[is.na(datExitStudies$PY010G)] <- 1
+
+                        
 datExitStudies.w  <- dcast(datExitStudies, PER_ID + RB020 ~ time, value.var = "PY010G")
 names(datExitStudies.w) <- c("PER_ID","RB020","xm3","xm2","xm1","x0","xp1","xp2","xp3","xp4","xp5")
 
@@ -387,7 +450,7 @@ dat.plot.l$variable <- factor(dat.plot.l$variable,
 library(ggplot2)
 ggplot(dat.plot.l, aes(x=variable,y=value,group=PER_ID)) +
 geom_point(alpha=.2) + geom_line(alpha=.2) +
-coord_cartesian(ylim=c(0,300)) +
+#coord_cartesian(ylim=c(0,300)) +
 facet_wrap(~RB020, ncol=2) +
   labs(title="Change in relative Employee cash or near cash income(gross) when leaving school for work (max y on 300)") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
@@ -400,7 +463,7 @@ facet_wrap(~RB020, ncol=2) +
 
 #### By country & year
 
-```{rsubsetfiglabour1, fig.height=32, fig.width=12}
+```{rsubsetfiglabour1, fig.height=32, fig.width=12, eval=TRUE}
 library(ggplot2)
 ggplot(data=datExitStudies, 
        aes(x=factor(RB010),y=RX010)) + 
