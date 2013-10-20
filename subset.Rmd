@@ -9,7 +9,7 @@ Sys.time()
 ```
 
 ```{roptssubset, echo=FALSE}
-opts_chunk$set(echo=FALSE,eval=TRUE, cache=TRUE,warning=FALSE)
+opts_chunk$set(echo=TRUE,eval=FALSE, cache=TRUE,warning=FALSE)
 ```
 
 
@@ -268,11 +268,14 @@ load("data/dat.per.RData")
 dim(dat.per)
 head(dat.per[,c("PER_ID_Y","RB080","RX010","econStatus")])
 
+
 ```
 
 
 
-```{rsubsetrecodeschool}
+```{rsubsetrecodeschool, eval=TRUE}
+load("data/dat.per.RData")
+
 
 library(reshape2)
 df.wide <- dcast(dat.per, PER_ID + RB020 + 
@@ -309,51 +312,13 @@ df.long$year <- as.numeric(levels(df.long$year))[df.long$year]
 
 df.long <- df.long[!is.na(df.long$schoolExit), ] # all we need are the (ex)-students
 
-datEntW <- merge(df.long[,c("RB020","RB030","year","schoolExit")],dat.per, 
+datExitStudies <- merge(df.long[,c("RB020","RB030","year","schoolExit")],dat.per, 
                   by=c("RB020","RB030"), all.x=TRUE)
 
-# yritäppä saa joku roti siihen, missä on vika kun vuosiin tulee NA arvo ja muutenkin on väjhän sotkua..
+datExitStudies$time <- datExitStudies$year - datExitStudies$RB010
 
-datT <- datEntW[datEntW$year==datEntW$RB010,]
-# before
-datTm1 <- datEntW[datEntW$year==(datEntW$RB010+1),]
-datTm2 <- datEntW[datEntW$year==(datEntW$RB010+2),]
-datTm3 <- datEntW[datEntW$year==(datEntW$RB010+3),]
-datTm4 <- datEntW[datEntW$year==(datEntW$RB010+4),]
-datTm5 <- datEntW[datEntW$year==(datEntW$RB010+5),]
-# after
-datTp1 <- datEntW[datEntW$year==(datEntW$RB010-1),]
-datTp2 <- datEntW[datEntW$year==(datEntW$RB010-2),]
-datTp3 <- datEntW[datEntW$year==(datEntW$RB010-3),]
-
-datT <- datT[, c("PER_ID","PY010G","RB020","HX100","year")]
-names(datT) <- c("PER_ID","incomeT","RB020","HX100","year")
-datTm1 <- datTm1[, c("PER_ID","PY010G","RB020")]
-names(datTm1) <- c("PER_ID","incomeTmin1","RB020")
-datTm2 <- datTm2[, c("PER_ID","PY010G","RB020")]
-names(datTm2) <- c("PER_ID","incomeTmin2","RB020")
-datTm3 <- datTm3[, c("PER_ID","PY010G","RB020")]
-names(datTm3) <- c("PER_ID","incomeTmin3","RB020")
-datTm4 <- datTm4[, c("PER_ID","PY010G","RB020")]
-names(datTm4) <- c("PER_ID","incomeTmin4","RB020")
-datTm5 <- datTm5[, c("PER_ID","PY010G","RB020")]
-names(datTm5) <- c("PER_ID","incomeTmin5","RB020")
-
-datTp1 <- datTp1[, c("PER_ID","PY010G","RB020")]
-names(datTp1) <- c("PER_ID","incomeTplus1","RB020")
-datTp2 <- datTp2[, c("PER_ID","PY010G","RB020")]
-names(datTp2) <- c("PER_ID","incomeTplus2","RB020")
-datTp3 <- datTp3[, c("PER_ID","PY010G","RB020")]
-names(datTp3) <- c("PER_ID","incomeTplus3","RB020")
-
-dat.plot <- merge(datT,datTm1,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTm2,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTm3,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTm4,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTm5,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTp1,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTp2,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTp3,by=c("PER_ID","RB020"), all.x=TRUE)
+#datExitStudies <- datExitStudies[datExitStudies$time >= -1 & datExitStudies$time <= 3,]
+#summary(factor(datExitStudies$time))
 
 # merge income quitile from hh data - failed only three norwegian household match this way....
 
@@ -363,15 +328,6 @@ dat.plot <- merge(dat.plot,datTp3,by=c("PER_ID","RB020"), all.x=TRUE)
 #ff <- merge(dat.plot,dat.hh, by="HH_ID_Y", all.x=TRUE)
 #dat.hh2 <- dat.hh[,c("DB030","DB010","HX090","HX100")]
 
-dat.plot.abso <- dat.plot
-
-dat.plot[,5] <- dat.plot[,5]/dat.plot[,4] *100
-dat.plot[,6] <- dat.plot[,6]/dat.plot[,4] *100
-dat.plot[,7] <- dat.plot[,7]/dat.plot[,4] *100
-dat.plot[,8] <- dat.plot[,8]/dat.plot[,4] *100
-dat.plot[,9] <- dat.plot[,9]/dat.plot[,4] *100
-dat.plot[,3] <- dat.plot[,3]/dat.plot[,4] *100
-dat.plot[,4] <- dat.plot[,4]/dat.plot[,4] *100
 
 ```
 
@@ -384,53 +340,58 @@ In the figure below `IncomeT` stands for time point when *event* took place. `In
 
 **NOTE**
 
-- dotted vertcal red line stands for **first year as a "worker"**!
+- on the x-axis 0 means the first year in employment. -1 is the last year as student and 1 is the 1st year after event, eg. 2nd year of employment
+- between country variation in the x-axis values is due to missing data in income var (plot is only illustrative..)
 
 
-```{rsubsetentryworkplotAbso, fig.height=30, fig.width=12, warning=FALSE}
+```{rsubsetentryworkplotAbso, fig.height=30, fig.width=12, warning=FALSE, eval=TRUE}
 library(reshape2)
-dat.plot.l <- melt(dat.plot.abso, id.vars = c("PER_ID","RB020","HX100"))
-dat.plot.l$variable <- factor(dat.plot.l$variable, 
-                              levels=c("incomeTmin5",
-                                       "incomeTmin4","incomeTmin3",
-                                       "incomeTmin2","incomeTmin1",
-                                       "incomeT",
-                                       "incomeTplus1","incomeTplus2",
-                                       "incomeTplus3"))
-summary(factor(dat.plot.l$variable))
 library(ggplot2)
-ggplot(dat.plot.l, aes(x=variable,y=value,group=PER_ID)) +
+ggplot(datExitStudies, aes(x=factor(time),y=PY010G,group=PER_ID)) +
   geom_point(alpha=.2) + geom_line(alpha=.2) +
-  coord_cartesian(ylim=c(0,50000)) +
-  facet_wrap(~RB020, ncol=4) +
+  coord_cartesian(ylim=c(0,70000)) +
+  facet_wrap(~RB020, ncol=2) +
   labs(title="Change in absolute Employee cash or near cash income(gross) when leaving school for work") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
-  geom_vline(xintercept = 4, color="red", type="dashed")
-  
-
+  geom_vline(xintercept = 4, color="orange", type="dashed")
 ```
 
-**Change in relative income (last year as student = 100)**
+#### Change in relative income (last year as student = 100)
 
-
-```{rsubsetentryworkplotRela, fig.height=30, fig.width=12, warning=FALSE}
+```{rsubsetentryworkplotRela, fig.height=30, fig.width=12, warning=FALSE, eval=TRUE}
 library(reshape2)
-dat.plot.l <- melt(dat.plot, id.vars = c("PER_ID","RB020"))
-dat.plot.l$variable <- factor(dat.plot.l$variable, 
-                              levels=c("incomeTmin3","incomeTmin2","incomeTmin1",
-                                       "incomeT",
-                                       "incomeTplus1","incomeTplus2","incomeTplus3"))
+#summary(factor(duplicated(datExitStudies$PER_ID_Y)))
+## for some reason there are 191 (vs. 29891) duplicates inthe data
+datExitStudies$dup <- duplicated(datExitStudies$PER_ID_Y)
+datExitStudies <- datExitStudies[datExitStudies$dup == FALSE,]
 
+datExitStudies$time <- factor(datExitStudies$time)
+datExitStudies.w  <- dcast(datExitStudies, PER_ID + RB020 ~ time, value.var = "PY010G")
+names(datExitStudies.w) <- c("PER_ID","RB020","xm3","xm2","xm1","x0","xp1","xp2","xp3","xp4","xp5")
+
+datExitStudies.w$xm3 <- datExitStudies.w$xm3 / datExitStudies.w$xm1 * 100
+datExitStudies.w$xm2 <- datExitStudies.w$xm2 / datExitStudies.w$xm1 * 100
+datExitStudies.w$x0 <- datExitStudies.w$x0 / datExitStudies.w$xm1 * 100
+datExitStudies.w$xp1 <- datExitStudies.w$xp1 / datExitStudies.w$xm1 * 100
+datExitStudies.w$xp2 <- datExitStudies.w$xp2 / datExitStudies.w$xm1 * 100
+datExitStudies.w$xp3 <- datExitStudies.w$xp3 / datExitStudies.w$xm1 * 100
+datExitStudies.w$xp4 <- datExitStudies.w$xp4 / datExitStudies.w$xm1 * 100
+datExitStudies.w$xp5 <- datExitStudies.w$xp5 / datExitStudies.w$xm1 * 100
+datExitStudies.w$xm1 <- datExitStudies.w$xm1 / datExitStudies.w$xm1 * 100
+
+dat.plot.l <- melt(datExitStudies.w, id.vars = c("PER_ID","RB020"))
+dat.plot.l$variable <- factor(dat.plot.l$variable, 
+                              levels=c("xm3","xm2","xm1","x0",
+                                       "xp1","xp2","xp3","xp4","xp5"))
 
 library(ggplot2)
 ggplot(dat.plot.l, aes(x=variable,y=value,group=PER_ID)) +
 geom_point(alpha=.2) + geom_line(alpha=.2) +
-coord_cartesian(ylim=c(0,2000)) +
-facet_wrap(~RB020, ncol=3) +
-  labs(title="Change in relative Employee cash or near cash income(gross) when leaving school for work") +
+coord_cartesian(ylim=c(0,300)) +
+facet_wrap(~RB020, ncol=2) +
+  labs(title="Change in relative Employee cash or near cash income(gross) when leaving school for work (max y on 300)") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
-  annotate("text", y=1500, x="incomeT", label="First year \n at work") +
-  geom_vline(xintercept = 4, color="red")
+  geom_vline(xintercept = 4, color="orange", type="dashed")
 
 ```
 
@@ -441,27 +402,25 @@ facet_wrap(~RB020, ncol=3) +
 
 ```{rsubsetfiglabour1, fig.height=32, fig.width=12}
 library(ggplot2)
-dat.plot <- datEntW[datEntW$year==datEntW$RB010,]
-
-ggplot(data=dat.plot, 
+ggplot(data=datExitStudies, 
        aes(x=factor(RB010),y=RX010)) + 
   geom_boxplot() +
-  labs(title="Age of individuals entering labour market") +
-  facet_wrap(~RB020, ncol=3)
-
+  labs(title="Age of individuals entering labour market (y-scale fixed 15-35 years)") +
+  facet_wrap(~RB020, ncol=3) +
+  coord_cartesian(ylim=c(15,35))
 
 ```
 
 
 #### By country
 
-```{rsubsetfiglabour2, fig.height=15, fig.width=15}
+```{rsubsetfiglabour2, fig.height=7, fig.width=15}
 library(ggplot2)
-ggplot(data=dat.plot, 
+ggplot(data=datExitStudies, 
        aes(x=factor(RB020),y=RX010)) + 
   geom_boxplot() +
-  labs(title="Age of individuals entering labour market")
-
+  labs(title="Age of individuals entering labour market (y-scale fixed 15-35 years)") +
+  coord_cartesian(ylim=c(15,35))
 
 ```
 
@@ -778,7 +737,5 @@ ggplot(data=datBabyPlot,
   coord_cartesian(ylim=c(55,85))
 
 ```
-
-
 
 
