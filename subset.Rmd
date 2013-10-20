@@ -9,9 +9,8 @@ Sys.time()
 ```
 
 ```{roptssubset, echo=FALSE}
-opts_chunk$set(echo=FALSE,eval=FALSE, cache=TRUE,warning=FALSE,fig.width=12,fig.height=8)
+opts_chunk$set(echo=FALSE,eval=TRUE, cache=TRUE,warning=FALSE,fig.width=12,fig.height=8)
 ```
-
 
 
 # Subsetting & merging the dataset for analysis
@@ -83,6 +82,8 @@ Value                             Label
 5                                 Moved out since previous wave or last interview if not contacted in previous wave
 6                                 Died
 7                                 Lived in the household at least three months during the i
+
+
 
 
 ```{rsubsetloadmergedpersonalfiles,eval=FALSE}
@@ -239,6 +240,8 @@ dat.per <- merge(dat.per,dat.hh,
 save(dat.per, file="data/dat.per.RData")
 ```
 
+
+
 ## Summarising the data analysis
 
 - all the analysis is programmed in reproducible manner from the original data
@@ -263,6 +266,7 @@ The following plots are provided from all the events
 
 
 ## Exiting education for labour market
+
 
 
 ```{rsubsetrecodeschool, eval=TRUE}
@@ -315,13 +319,14 @@ df.long2 <- df.long[df.long$schoolExit == 1, ] # all we need are the (ex)-studen
 datExitStudies <- merge(df.long2[,c("RB020","RB030","year","schoolExit")],dat.per, 
                   by=c("RB020","RB030"), all.x=TRUE)
 
-datExitStudies$time <- datExitStudies$RB010 - datExitStudies$year
+datEnterPensions$time <- datEnterPensions$RB010 - datEnterPensions$year
+
 ```
 
 
 
-### Number of events by year & country
 
+### Number of events by year & country
 
 ```{rsubsetexiteducationhistogram}
 datEnterBirth2 <- merge(cond,datEnterBirth,by=c("RB020","PER_ID"))
@@ -335,39 +340,40 @@ ggplot(data=tbl, aes(x=factor(Var2),y=Freq,label=Freq)) +
 ```
 
 
-### Distribution of age of individuals by year & country
 
+### Distribution of age of individuals by year & country
 
 ```{rsubsetfiglabour1, fig.height=22}
 library(ggplot2)
 ggplot(data=datExitStudies, 
        aes(x=factor(RB010),y=RX010)) + 
   geom_boxplot() +
-  labs(title="Age of individuals entering labour market (y-scale fixed 15-35 years)") +
-  facet_wrap(~RB020, ncol=3) +
-  coord_cartesian(ylim=c(15,35))
+  labs(title="Age of individuals entering labour market") +
+  facet_wrap(~RB020, ncol=4)
 
 ```
 
+
+
 ### Distribution of age of individuals by country
+
 
 ```{rsubsetfiglabour2}
 library(ggplot2)
 ggplot(data=datExitStudies, 
        aes(x=factor(RB020),y=RX010)) + 
   geom_boxplot() +
-  labs(title="Age of individuals entering labour market (y-scale fixed 15-35 years)") +
-  coord_cartesian(ylim=c(15,35))
+  labs(title="Age of individuals entering labour market")
 
 ```
 
-### Distribution of absolute employee cash income (gross) before and after the event
 
+
+### Distribution of absolute employee cash income (gross) before and after the event
 
 **NOTE**
 
 - on the x-axis 0 means the first year in employment. -1 is the last year as student and 1 is the 1st year after event, eg. 2nd year of employment
-- between country variation in the x-axis values is due to missing data in income var (plot is only illustrative..)
 
 ```{rsubsetentryworkplotAbsobox}
 library(ggplot2)
@@ -375,11 +381,12 @@ ggplot(data=datExitStudies,
        aes(x=factor(time),y=PY010G)) + 
   geom_boxplot() +
   labs(title="Distribution of absolute employee cash income (gross) before and after entering labour")
+
 ```
 
 
-### Change in absolute employee cash income (gross) due to event (years before and after)
 
+### Change in absolute employee cash income (gross) due to event (years before and after)
 
 
 ```{rsubsetentryworkplotAbso, fig.height=30}
@@ -391,44 +398,6 @@ ggplot(datExitStudies, aes(x=factor(time),y=PY010G,group=PER_ID)) +
   labs(title="Change in absolute Employee cash or near cash income(gross) when leaving school for work") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
   geom_vline(xintercept = 6, color="orange", type="dashed")
-```
-
-
-
-```{rsubsetentryworkplotRela, eval=FALSE}
-library(reshape2)
-#summary(factor(duplicated(datExitStudies$PER_ID_Y)))
-## for some reason there are 191 (vs. 29891) duplicates inthe data
-datExitStudies$dup <- duplicated(datExitStudies$PER_ID_Y)
-datExitStudies <- datExitStudies[datExitStudies$dup == FALSE,]
-
-datExitStudies$time <- factor(datExitStudies$time)
-datExitStudies.w  <- dcast(datExitStudies, PER_ID + RB020 ~ time, value.var = "PY010G")
-names(datExitStudies.w) <- c("PER_ID","RB020","xm3","xm2","xm1","x0","xp1","xp2","xp3","xp4","xp5")
-
-datExitStudies.w$xm3 <- datExitStudies.w$xm3 / datExitStudies.w$xm1 * 100
-datExitStudies.w$xm2 <- datExitStudies.w$xm2 / datExitStudies.w$xm1 * 100
-datExitStudies.w$x0 <- datExitStudies.w$x0 / datExitStudies.w$xm1 * 100
-datExitStudies.w$xp1 <- datExitStudies.w$xp1 / datExitStudies.w$xm1 * 100
-datExitStudies.w$xp2 <- datExitStudies.w$xp2 / datExitStudies.w$xm1 * 100
-datExitStudies.w$xp3 <- datExitStudies.w$xp3 / datExitStudies.w$xm1 * 100
-datExitStudies.w$xp4 <- datExitStudies.w$xp4 / datExitStudies.w$xm1 * 100
-datExitStudies.w$xp5 <- datExitStudies.w$xp5 / datExitStudies.w$xm1 * 100
-datExitStudies.w$xm1 <- datExitStudies.w$xm1 / datExitStudies.w$xm1 * 100
-
-dat.plot.l <- melt(datExitStudies.w, id.vars = c("PER_ID","RB020"))
-dat.plot.l$variable <- factor(dat.plot.l$variable, 
-                              levels=c("xm3","xm2","xm1","x0",
-                                       "xp1","xp2","xp3","xp4","xp5"))
-
-library(ggplot2)
-ggplot(dat.plot.l, aes(x=variable,y=value,group=PER_ID)) +
-geom_point(alpha=.2) + geom_line(alpha=.2) +
-coord_cartesian(ylim=c(0,300)) +
-facet_wrap(~RB020, ncol=2) +
-  labs(title="Change in relative Employee cash or near cash income(gross) when leaving school for work (max y on 300)") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
-  geom_vline(xintercept = 4, color="orange", type="dashed")
 
 ```
 
@@ -438,13 +407,13 @@ facet_wrap(~RB020, ncol=2) +
     - coding is probably done somewhat correctly
 
 
-
 ## Entering maternity
 
 Making sense of the newly born babies and their mothers
 
 - some given birth in 2005, those have to be excluded as there are no information from year before
-- in the table below are the number of babies by year and cntry
+- only cases that have infomation minimum -1, 0 and +1 year are included
+
 
 
 ```{rsubsetrecodebirth}
@@ -454,13 +423,10 @@ newborn$birthGiven <- 1
 # lets merge this back to main data by year,cntry,mother ID/personal ID
 # so that all new var birthGiven is given to mothers of babies
 names(newborn)[1] <- "year"
-dim(newborn)
 # babies by year and country
-table(newborn$RB020,newborn$year)
 datEnterBirth <- merge(dat.per,newborn[,c("year","RB020","RB230","birthGiven")],
 by.x=c("RB020","RB030"),
 by.y=c("RB020","RB230"))
-dim(datEnterBirth)
 datEnterBirth$time <- datEnterBirth$RB010 - datEnterBirth$year
 # We want that all the cases have data AT LEAST from time -1, 0 and +1 -
 # so let's exclude cases missing that information
@@ -473,7 +439,7 @@ cond <- datEnterBirth.l[!is.na(datEnterBirth.l$cond), ]
 cond <- cond[,1:2]
 ```
 
-
+### Number of events by year & country
 
 
 ```{rsubsetentermaterintyhistogram}
@@ -538,150 +504,8 @@ ggplot(datEnterBirth2, aes(x=factor(time),y=PY010G,group=PER_ID)) +
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Plotting the change in employee cash income due to giving birth
-
-```{rsubsetexitbirthrecode, eval=FALSE}
-dfz <- dat.per.birth[!is.na(dat.per.birth$birthGiven), ]
-datEntW <- dfz[,c("RB020","PER_ID","RB010","year","PY010G","birthGiven")]
-datT <- datEntW[datEntW$year==datEntW$RB010,]
-# before
-datTm1 <- datEntW[datEntW$year==(datEntW$RB010+1),]
-datTm2 <- datEntW[datEntW$year==(datEntW$RB010+2),]
-datTm3 <- datEntW[datEntW$year==(datEntW$RB010+3),]
-# after
-datTp1 <- datEntW[datEntW$year==(datEntW$RB010-1),]
-datTp2 <- datEntW[datEntW$year==(datEntW$RB010-2),]
-datTp3 <- datEntW[datEntW$year==(datEntW$RB010-3),]
-
-datT <- datT[, c("PER_ID","PY010G","RB020")]
-names(datT) <- c("PER_ID","incomeT","RB020")
-datTm1 <- datTm1[, c("PER_ID","PY010G","RB020")]
-names(datTm1) <- c("PER_ID","incomeTmin1","RB020")
-datTm2 <- datTm2[, c("PER_ID","PY010G","RB020")]
-names(datTm2) <- c("PER_ID","incomeTmin2","RB020")
-datTm3 <- datTm3[, c("PER_ID","PY010G","RB020")]
-names(datTm3) <- c("PER_ID","incomeTmin3","RB020")
-datTp1 <- datTp1[, c("PER_ID","PY010G","RB020")]
-names(datTp1) <- c("PER_ID","incomeTplus1","RB020")
-datTp2 <- datTp2[, c("PER_ID","PY010G","RB020")]
-names(datTp2) <- c("PER_ID","incomeTplus2","RB020")
-datTp3 <- datTp3[, c("PER_ID","PY010G","RB020")]
-names(datTp3) <- c("PER_ID","incomeTplus3","RB020")
-
-
-dat.plot <- merge(datT,datTm1,    by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTm2,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTm3,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTp1,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTp2,by=c("PER_ID","RB020"), all.x=TRUE)
-dat.plot <- merge(dat.plot,datTp3,by=c("PER_ID","RB020"), all.x=TRUE)
-
-dat.plot.abso <- dat.plot
-
-dat.plot[,4] <- dat.plot[,4]/dat.plot[,3] *100
-dat.plot[,5] <- dat.plot[,5]/dat.plot[,3] *100
-dat.plot[,6] <- dat.plot[,6]/dat.plot[,3] *100
-dat.plot[,7] <- dat.plot[,7]/dat.plot[,3] *100
-dat.plot[,8] <- dat.plot[,8]/dat.plot[,3] *100
-dat.plot[,9] <- dat.plot[,9]/dat.plot[,3] *100
-dat.plot[,3] <- dat.plot[,3]/dat.plot[,3] *100
-
-dat.plot$dup <- duplicated(dat.plot$PER_ID)
-dat.plot <- dat.plot[dat.plot$dup == FALSE,]
-
-
-```
-
-
-### change in gross income when baby is born
-
-#### Absolute (note: scale is varying between countries)
-
-```{rsubsetexitbirthplotabso, fig.height=32, fig.width=12, warning=FALSE}
-library(reshape2)
-dat.plot.l <- melt(dat.plot.abso, id.vars = c("PER_ID","RB020"))
-dat.plot.l$variable <- factor(dat.plot.l$variable, 
-                              levels=c("incomeTmin3","incomeTmin2","incomeTmin1",
-                                       "incomeT",
-                                       "incomeTplus1","incomeTplus2","incomeTplus3"))
-library(ggplot2)
-ggplot(dat.plot.l, aes(x=variable,y=value,group=PER_ID)) +
-geom_point(alpha=.2) + geom_line(alpha=.2) +
-#coord_cartesian(ylim=c(0,60000)) +
-facet_wrap(~RB020, ncol=3, scales="free_y") +
-  labs(title="Change in absolute Employee cash or near cash income(gross) when giving birth") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
-  annotate("text", y=30000, x="incomeT", label="Baby \n is born", color="red") +
-  geom_vline(xintercept = 4, color="red")
-
-```
-
-#### Relative
-
-```{rsubsetexitbirthplotrela, fig.height=32, fig.width=12, warning=FALSE}
-library(reshape2)
-dat.plot.l <- melt(dat.plot, id.vars = c("PER_ID","RB020"))
-dat.plot.l$variable <- factor(dat.plot.l$variable, 
-                              levels=c("incomeTmin3","incomeTmin2","incomeTmin1",
-                                       "incomeT",
-                                       "incomeTplus1","incomeTplus2","incomeTplus3"))
-
-ggplot(dat.plot.l, aes(x=variable,y=value,group=PER_ID)) +
-geom_point(alpha=.2) + geom_line(alpha=.2) +
-coord_cartesian(ylim=c(0,2000)) +
-facet_wrap(~RB020, ncol=3) +
-  labs(title="Change in relative Employee cash or near cash income(gross) when giving birth") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
-  annotate("text", y=1500, x="incomeT", label="Baby \n is born", color="red") +
-  geom_vline(xintercept = 4, color="red")
-
-```
-
-
-### Age of women given birth by year & country
-
-```{rsubsetfigbirth1, fig.height=32, fig.width=12}
-library(ggplot2)
-datBabyPlot <- dat.per.birth[dat.per.birth$year==dat.per.birth$RB010,]
-ggplot(data=datBabyPlot, 
-       aes(x=factor(RB010),y=RX010)) + 
-  geom_boxplot() +
-  labs(title="Age of mothers given births by country") +
-  facet_wrap(~RB020, ncol=3)
-#sorttaa määrän mukaan
-```
-
-### Age of women given birth by year & country
-
-```{rsubsetfigbirth2, fig.height=14, fig.width=14}
-library(ggplot2)
-datBabyPlot <- dat.per.birth[dat.per.birth$year==dat.per.birth$RB010,]
-ggplot(data=datBabyPlot, 
-       aes(x=RB020,y=RX010)) + 
-  geom_boxplot() +
-  labs(title="Age of mothers given births by country")
-#sorttaa määrän mukaan
-```
-
-
 ## Leaving work for pension
+
 
 
 ```{rsubsetrecodeexitpension}
@@ -725,12 +549,13 @@ df.long$year <- as.numeric(levels(df.long$year))[df.long$year]
 
 df.longx <- df.long[df.long$pensionEnter == 1, ] # all we need are the new pensioners
 
-datEnterPension <- merge(df.longx[,c("RB020","RB030","year","pensionEnter")],
+datEnterPensions <- merge(df.longx[,c("RB020","RB030","year","pensionEnter")],
                           dat.per, 
                           by=c("RB020","RB030"), 
                           all.x=TRUE)
-datEnterPension$time <- datEnterPension$RB010 - datEnterPension$year
+datEnterPensions$time <- datEnterPensions$RB010 - datEnterPensions$year
 ```
+
 
 
 ### Number of events by year & country
@@ -808,71 +633,51 @@ ggplot(datEnterPension, aes(x=factor(time),y=PY010G,group=PER_ID)) +
 
 
 
+# Misc text and tables
 
-### Plotting the change in employee cash income due to exiting to pension
+Following variables are selected:
 
+From **personal register**
 
-#### Absosulte change
+varname                                         label
+-------------------------------------------     ----------
+PER_ID                                          unique year, cntry, personal ID
+[RB010](http://www.gesis.org/?id=8062#RB010)    year
+[RB020](http://www.gesis.org/?id=8062#RB020)    cntry
+[RB030](http://www.gesis.org/?id=8062#RB030)    Personal ID
+[RB040](http://www.gesis.org/?id=8062#RB040)    Current Household ID
+[RB060](http://www.gesis.org/?id=8062#RB060)    Personal base weight
+[RB080](http://www.gesis.org/?id=8062#RB080)    Year of birth
+[RB090](http://www.gesis.org/?id=8062#RB090)    Sex
+[RB110](http://www.gesis.org/?id=8062#RB110)    Membership status
+[RB210](http://www.gesis.org/?id=8062#RB210)    Basic activity status
+[RB230](http://www.gesis.org/?id=8062#RB230)    Mother ID
+[RX010](http://www.gesis.org/?id=8062#RX010)    Age at the date of the interview
+[RX020](http://www.gesis.org/?id=8062#RX020)    Age at the end of the income reference period
 
-```{rsubsetexitpensionplotabso, fig.height=32, fig.width=12, warning=FALSE}
-library(reshape2)
-dat.plot.l <- melt(dat.plot.abso, id.vars = c("PER_ID","RB020"))
-dat.plot.l$variable <- factor(dat.plot.l$variable, 
-                              levels=c("incomeTmin3","incomeTmin2","incomeTmin1",
-                                       "incomeT",
-                                       "incomeTplus1","incomeTplus2","incomeTplus3"))
+From **personal data**
 
-ggplot(dat.plot.l, aes(x=variable,y=value,group=PER_ID)) +
-geom_point(alpha=.2) + geom_line(alpha=.2) +
-#coord_cartesian(ylim=c(0,50000)) +
-facet_wrap(~RB020, ncol=3, scales="free_y") +
-  labs(title="Change in absolute Employee cash or near cash income(gross) when exiting for pension") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))  +
-  annotate("text", y=15000, x="incomeT", label="First year \n in pensions", color="red") +
-  geom_vline(xintercept = 4, color="red")
-
-```
-
-
-
-#### Relative change
-
-```{rsubsetexitpensionplotrela, fig.height=32, fig.width=12, warning=FALSE}
-library(reshape2)
-dat.plot.l <- melt(dat.plot, id.vars = c("PER_ID","RB020"))
-dat.plot.l$variable <- factor(dat.plot.l$variable, 
-                              levels=c("incomeTmin3","incomeTmin2","incomeTmin1",
-                                       "incomeT",
-                                       "incomeTplus1","incomeTplus2","incomeTplus3"))
-
- 
-
-```
+varname                                         label
+-------------------------------------------     ----------
+[PB190](http://www.gesis.org/?id=8063#PB190)    Marital status
+[PB200](http://www.gesis.org/?id=8063#PB200)    Consensual union
+[PL030](http://www.gesis.org/?id=8063#PL030)    Self-defined current economic status
+[PL040](http://www.gesis.org/?id=8063#PL040)    Status in employment
+[PY010G](http://www.gesis.org/?id=8063#PY010G)  Employee cash or near cash income(gross)
 
 
-### Pensioners ages
 
-#### Year and country
 
-```{rsubsetpensionplotage1, fig.height=32, fig.width=12, warning=FALSE}
-ggplot(data=datBabyPlot, 
-       aes(x=factor(RB010),y=RX010)) + 
-  geom_boxplot() +
-  labs(title="Age of pensioners by country") +
-  facet_wrap(~RB020, ncol=3) +
-  coord_cartesian(ylim=c(55,85))
 
-```
+From **household data**
 
-#### country
-
-```{rsubsetpensionplotage2, fig.height=14, fig.width=14, warning=FALSE}
-ggplot(data=datBabyPlot, 
-       aes(x=RB020,y=RX010)) + 
-  geom_boxplot() +
-  labs(title="Age of pensioners by country") +
-  coord_cartesian(ylim=c(55,85))
-
-```
-
+varname                                         label
+-------------------------------------------     ----------
+[HB010](http://www.gesis.org/?id=8061#HB010)    Year of the survey
+[HB020](http://www.gesis.org/?id=8061#HB020)    Country
+[HB030](http://www.gesis.org/?id=8061#HB030)    Household id
+DB110: Household status
+[HY020](http://www.gesis.org/?id=8061#HY020)    total disposable household income
+HX050                                           Equivivalized household size
+HX090                                           Equivivalized household income
 
