@@ -1,6 +1,3 @@
-% Welfare State Entry and Exit: Combatting macro-economic and life-course sustainability deficit in Europe
-% Data Analysis
-% file: missing.html
 - [Back to index](index.html)
 
 
@@ -14,15 +11,24 @@ Sys.time()
 
 
 ```{roptsmissing, echo=FALSE}
-opts_chunk$set(echo=TRUE,eval=TRUE, cache=TRUE)
+opts_chunk$set(echo=FALSE,eval=TRUE,fig.height=8, fig.width=10,cache=TRUE)
 ```
+
+`log of changes`
+
+date      comment
+--------  -------------------
+20131022  This is up-to-date, misc ad-hoc links removed
 
 
 # Diagnostics & Missing data
 
+
+
+
 Following analysis are based on the orinal merged data
 
-```{rsubsetloadmergedpersonalfiles, eval=FALSE, cache=TRUE, echo=FALSE}
+```{rsubsetloadmergedpersonalfiles}
 # Load the merged personal level panel datasets
 load("~/workspace/data/eu_silc/2008/longi_rev3/per_merge.RData")
 per_merge08 <- per_merge
@@ -40,7 +46,7 @@ rm(per_merge)
 ### PL030: Self-defined current economic status
 - [http://www.gesis.org/?id=8063#PL030](http://www.gesis.org/?id=8063#PL030)
 
-```{rmissingeducationpl030, fig.height=8, fig.width=10, cache=TRUE}
+```{rmissingeducationpl030}
 library(ggplot2)
 library(reshape2)
 library(VIM)
@@ -63,7 +69,7 @@ barMiss(pl030_10, only.miss = FALSE)
 - [http://www.gesis.org/?id=8063#PL031](http://www.gesis.org/?id=8063#PL030)
 
 
-```{rmissingeducationpl031, fig.height=8, fig.width=10, cache=TRUE}
+```{rmissingeducationpl031}
 library(ggplot2)
 library(reshape2)
 library(VIM)
@@ -86,7 +92,7 @@ barMiss(pl031_10, only.miss = FALSE)
 ### RB210 - Basic activity status
 - [http://www.gesis.org/?id=8062#RB210](http://www.gesis.org/?id=8062#RB210)
 
-```{rmissingeducationRB210, fig.height=8, fig.width=10, cache=TRUE}
+```{rmissingeducationRB210}
 library(ggplot2)
 library(reshape2)
 library(VIM)
@@ -109,7 +115,7 @@ barMiss(RB210_10, only.miss = FALSE)
 
 - [http://www.gesis.org/?id=8062#RB170](http://www.gesis.org/?id=8062#RB170)
 
-```{rmissingeducationRB170, fig.height=8, fig.width=10, cache=TRUE}
+```{rmissingeducationRB170}
 library(ggplot2)
 library(reshape2)
 library(VIM)
@@ -131,7 +137,7 @@ barMiss(RB170_10, only.miss = FALSE)
 
 - [http://www.gesis.org/?id=8063#PY140G](http://www.gesis.org/?id=8063#PY140G)
 
-```{rmissingeducationPY140G, fig.height=8, fig.width=10, cache=TRUE}
+```{rmissingeducationPY140G}
 library(ggplot2)
 library(reshape2)
 library(VIM)
@@ -151,7 +157,7 @@ barMiss(PY140G_10, only.miss = FALSE)
 
 ### Net
 
-```{rmissingeducationPY010N, fig.height=8, fig.width=10, cache=TRUE}
+```{rmissingeducationPY010N}
 library(ggplot2)
 library(reshape2)
 library(VIM)
@@ -168,7 +174,7 @@ barMiss(PY010N_10, only.miss = FALSE)
 
 ### Gross
 
-```{rmissingeducationPY010G, fig.height=8, fig.width=10, cache=TRUE}
+```{rmissingeducationPY010G}
 library(ggplot2)
 library(reshape2)
 library(VIM)
@@ -187,7 +193,7 @@ barMiss(PY010G_10, only.miss = FALSE)
 
 ### Main activity on January
 
-```{rmissingeducationPL210A, fig.height=8, fig.width=10, cache=TRUE}
+```{rmissingeducationPL210A}
 library(ggplot2)
 library(reshape2)
 library(VIM)
@@ -205,7 +211,7 @@ barMiss(PL210A_10, only.miss = FALSE)
 ### Main activity on April
 
 
-```{rmissingeducationPL210D, fig.height=8, fig.width=10, cache=TRUE}
+```{rmissingeducationPL210D}
 library(ggplot2)
 library(reshape2)
 library(VIM)
@@ -224,7 +230,7 @@ barMiss(PL210D_10, only.miss = FALSE)
 ### Main activity on December
 
 
-```{rmissingeducationPL210L, fig.height=8, fig.width=10, cache=TRUE}
+```{rmissingeducationPL210L}
 library(ggplot2)
 library(reshape2)
 library(VIM)
