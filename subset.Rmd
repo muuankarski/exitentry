@@ -13,9 +13,8 @@ opts_chunk$set(echo=FALSE,eval=TRUE, cache=TRUE,warning=FALSE,fig.width=12,fig.h
 ```
 
 
-# Subsetting & merging the dataset for analysis
 
-*Look at the source file for exact details on coding [subset.Rmd](subset.Rmd)*
+# Subsetting & merging the dataset for analysis
 
 This document describes data on those three events we are interested in, which are
 

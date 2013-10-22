@@ -28,9 +28,11 @@ Sys.time()
 
 ## Loading and cleaning the data
 
-- [load and merge the datafiles](load_merge.html)
-- [subsetting the data](subset.html)
-- [diagnostics & missing data](missing.html)
+html-page                                         source
+------------------------------------------------- ------------------------
+[load and merge the datafiles](load_merge.html)   [source code](load_merge.Rmd)
+[subsetting the data](subset.html)                [source code](subset.Rmd)
+[diagnostics & missing data](missing.html)        [source code](missing.Rmd)
 
 ## Descriptive statistics
 
