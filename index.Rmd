@@ -10,6 +10,12 @@
 Sys.time()
 ```
 
+`log of changes`
+
+date      comment
+--------  -------------------
+20131022  added page *Survival curves of mothers returning work*
+
 
 # Description
 
@@ -35,6 +41,11 @@ html-page                                         source
 [diagnostics & missing data](missing.html)        [source code](missing.Rmd)
 
 ## Descriptive statistics
+
+html-page                                                               source
+-------------------------------------------------                       ---------------------
+[Survival curves of mothers returning work](ds_survival_mothers.html)   [source code](ds_survival_mothers.Rmd)
+
 
 
 ## Modelling the data

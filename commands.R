@@ -14,6 +14,11 @@ knit("missing.Rmd")
 system("~/.cabal/bin/pandoc -s missing.md -o missing.html --toc --number-section")
 
 
+knit("ds_survival_mothers.Rmd")
+system("~/.cabal/bin/pandoc -s ds_survival_mothers.md -o ds_survival_mothers.html --toc --number-section")
+
+
+
 library(kaRski)
 knitpandoc("index")
 # basic operations

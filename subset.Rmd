@@ -12,7 +12,11 @@ Sys.time()
 opts_chunk$set(echo=FALSE,eval=TRUE, cache=TRUE,warning=FALSE,fig.width=12,fig.height=8)
 ```
 
+`log of changes`
 
+date      comment
+--------  -------------------
+20131022  correction for histograms & age boxplots -> only events per year; ordering boxlots & adding regime colors 
 
 # Subsetting & merging the dataset for analysis
 
@@ -262,20 +266,13 @@ The following plots are provided from all the events
 3. boxplot: Distribution of absolute employee cash income (gross) before and after the event
 4. lineplot: Change in absolute employee cash income (gross) due to event (years before and after)
 
-**notes of graphs**
-
-- all the age boxplots by wave and country have systematic error with roughly one year increase by year (as same individuals are in the data in several waves).
-    - For such plot only the individual who "experience the event" should be selected for particular year
-    - I will fix this from my work computer as my laptop does not have the RAM required
-
 
 ## Exit to labour market
 
 
 
-```{rsubsetrecodeschool, eval=TRUE}
+```{rsubsetrecodeschool, eval=FALSE}
 load("data/dat.per.RData")
-
 
 library(reshape2)
 df.wide <- dcast(dat.per, PER_ID + RB020 + 
@@ -324,7 +321,7 @@ datExitStudies <- merge(df.long2[,c("RB020","RB030","year","schoolExit")],dat.pe
                   by=c("RB020","RB030"), all.x=TRUE)
 
 datExitStudies$time <- datExitStudies$RB010 - datExitStudies$year
-
+save(datExitStudies, file="datExitStudies.RData")
 ```
 
 
@@ -333,13 +330,14 @@ datExitStudies$time <- datExitStudies$RB010 - datExitStudies$year
 ### Number of events by year & country
 
 ```{rsubsetexiteducationhistogram}
-datEnterBirth2 <- merge(cond,datEnterBirth,by=c("RB020","PER_ID"))
+load("data/datExitStudies.RData")
+datTe <- datExitStudies[datExitStudies$year==datExitStudies$RB010,]
+tble <- as.data.frame(table(datTe$RB020,datTe$year))
 library(ggplot2)
-tbl <- as.data.frame(table(datExitStudies$RB020,datExitStudies$RB010))
-ggplot(data=tbl, aes(x=factor(Var2),y=Freq,label=Freq)) +
+ggplot(data=tble, aes(x=factor(Var2),y=Freq,label=Freq)) +
   geom_bar(stat="identity",position="dodge") +
   geom_text(vjust=-0.2) +
-  labs(title="Number of individuals exiting labour market") +
+  labs(title="Number of individuals exiting education to labour market") +
   facet_wrap(~Var1, ncol=4)
 ```
 
@@ -347,10 +345,10 @@ ggplot(data=tbl, aes(x=factor(Var2),y=Freq,label=Freq)) +
 
 ### Distribution of age of individuals by year & country
 
-```{rsubsetfiglabour1, fig.height=22}
+```{rsubsetfiglabour1, fig.height=14}
 library(ggplot2)
-ggplot(data=datExitStudies, 
-       aes(x=factor(RB010),y=RX010)) + 
+ggplot(data=datTe, 
+       aes(x=factor(year),y=RX010)) + 
   geom_boxplot() +
   labs(title="Age of individuals entering labour market") +
   facet_wrap(~RB020, ncol=4)
@@ -363,11 +361,21 @@ ggplot(data=datExitStudies,
 
 
 ```{rsubsetfiglabour2}
+regime <- read.csv("http://markuskainu.fi/material/data/eu/eusilc_suomi.csv")
+manual_fill <- scale_fill_manual(values=c("#999999", "#E69F00", 
+                                          "#56B4E9", "#009E73",
+                                          "#D55E00", "#CC79A7",
+                                          "#0072B2","#F0E442"))
+
+datTe <- merge(datTe,regime,by="RB020")
 library(ggplot2)
-ggplot(data=datExitStudies, 
-       aes(x=factor(RB020),y=RX010)) + 
+ggplot(data=datTe, 
+       aes(x=factor(reorder(RB020, RX010, median, na.rm=TRUE)),
+           y=RX010, fill=regime_en)) + 
   geom_boxplot() +
-  labs(title="Age of individuals entering labour market")
+  labs(title="Age of individuals entering labour market") +
+  manual_fill +
+  theme(legend.position="top")
 
 ```
 
@@ -419,7 +427,8 @@ Making sense of the newly born babies and their mothers
 
 
 
-```{rsubsetrecodebirth}
+```{rsubsetrecodebirth, eval=FALSE}
+load("data/dat.per.RData")
 newborn <- dat.per[dat.per$RB110 == 4,]
 # give that data a new variable birthGiven with value 1 for all
 newborn$birthGiven <- 1
@@ -440,16 +449,24 @@ names(datEnterBirth.l) <- c("RB020","PER_ID","xm5","xm4","xm3","xm2","xm1","x0",
 datEnterBirth.l$cond[datEnterBirth.l$xm1 >= 0 & datEnterBirth.l$x0 >= 0 & datEnterBirth.l$xp1 >= 0] <- 1
 cond <- datEnterBirth.l[!is.na(datEnterBirth.l$cond), ]
 cond <- cond[,1:2]
+datEnterBirth2 <- merge(cond,datEnterBirth,by=c("RB020","PER_ID"))
+#
+save(datEnterBirth, file="data/datEnterBirth.RData")
+save(datEnterBirth2, file="data/datEnterBirth2.RData")
 ```
 
 ### Number of events by year & country
 
 
 ```{rsubsetentermaterintyhistogram}
-datEnterBirth2 <- merge(cond,datEnterBirth,by=c("RB020","PER_ID"))
+load("data/datEnterBirth.RData")
+load("data/datEnterBirth2.RData")
 library(ggplot2)
-tbl <- as.data.frame(table(datEnterBirth2$RB020,datEnterBirth2$RB010))
-ggplot(data=tbl, aes(x=factor(Var2),y=Freq,label=Freq)) + 
+
+datTm <- datEnterBirth2[datEnterBirth2$year==datEnterBirth2$RB010,]
+tblm <- as.data.frame(table(datTm$RB020,datTm$year))
+
+ggplot(data=tblm, aes(x=factor(Var2),y=Freq,label=Freq)) + 
   geom_bar(stat="identity",position="dodge") + 
   geom_text(vjust=-0.2) + 
   labs(title="Number of individuals entering from maternity (new mothers, not necessarily first child)") + 
@@ -460,9 +477,9 @@ ggplot(data=tbl, aes(x=factor(Var2),y=Freq,label=Freq)) +
 ### Distribution of age of individuals by year & country
 
 
-```{rsubsetfigmaternity1, fig.height=22}
+```{rsubsetfigmaternity1, fig.height=14}
 library(ggplot2)
-ggplot(data=datEnterBirth2, 
+ggplot(data=datTm, 
        aes(x=factor(RB010),y=RX010)) + 
   geom_boxplot() +
   labs(title="Age of mothers") +
@@ -473,10 +490,16 @@ ggplot(data=datEnterBirth2,
 
 ```{rsubsetfigmaternity2}
 library(ggplot2)
-ggplot(data=datEnterBirth2, 
-       aes(x=factor(RB020),y=RX010)) + 
+datTm <- merge(datTm,regime,by="RB020")
+ggplot(data=datTm, 
+       aes(x=factor(reorder(RB020, RX010, median, na.rm=TRUE)),
+           y=RX010,
+           fill=regime_en)) + 
   geom_boxplot() +
-  labs(title="Age of mothers")
+  labs(title="Age of mothers") +
+  manual_fill +
+  theme(legend.position="top")
+
 ```
 
 ### Distribution of absolute employee cash income (gross) before and after the event
@@ -511,7 +534,9 @@ ggplot(datEnterBirth2, aes(x=factor(time),y=PY010G,group=PER_ID)) +
 
 
 
-```{rsubsetrecodeexitpension}
+```{rsubsetrecodeexitpension, eval=FALSE}
+library(reshape2)
+load("data/dat.per.RData")
 df.wide <- dcast(dat.per, PER_ID + RB020 + RB030 + 
                    HX100 + HX090 + PY010G ~ RB010, 
                  value.var = "econStatus")
@@ -520,15 +545,15 @@ names(df.wide) <- c("PER_ID","RB020","RB030","HX100","HX090",
                     "PY010G","x2005","x2006","x2007",
                     "x2008","x2009","x2010")
 
-df.wide$pension06[df.wide$x2005 %in% 1:4 & df.wide$x2006 == 7] <- 1
+df.wide$pension06[df.wide$x2005 != 7 & df.wide$x2006 == 7] <- 1
 df.wide$pension06[is.na(df.wide$pension06)] <- 0
-df.wide$pension07[df.wide$x2006 %in% 1:4 & df.wide$x2007 == 7] <- 1
+df.wide$pension07[df.wide$x2006 != 7 & df.wide$x2007 == 7] <- 1
 df.wide$pension07[is.na(df.wide$pension07)] <- 0
-df.wide$pension08[df.wide$x2007 %in% 1:4 & df.wide$x2008 == 7] <- 1
+df.wide$pension08[df.wide$x2007 != 7 & df.wide$x2008 == 7] <- 1
 df.wide$pension08[is.na(df.wide$pension08)] <- 0
-df.wide$pension09[df.wide$x2008 %in% 1:4 & df.wide$x2009 == 7] <- 1
+df.wide$pension09[df.wide$x2008 != 7 & df.wide$x2009 == 7] <- 1
 df.wide$pension09[is.na(df.wide$pension09)] <- 0
-df.wide$pension10[df.wide$x2009 %in% 1:4 & df.wide$x2010 == 7] <- 1
+df.wide$pension10[df.wide$x2009 != 7 & df.wide$x2010 == 7] <- 1
 df.wide$pension10[is.na(df.wide$pension10)] <- 0
 
 df.long <- melt(df.wide, id.vars =c("PER_ID","RB020","RB030",
@@ -552,11 +577,12 @@ df.long$year <- as.numeric(levels(df.long$year))[df.long$year]
 
 df.longx <- df.long[df.long$pensionEnter == 1, ] # all we need are the new pensioners
 
-datEnterPensions <- merge(df.longx[,c("RB020","RB030","year","pensionEnter")],
+datEnterPension <- merge(df.longx[,c("RB020","RB030","year","pensionEnter")],
                           dat.per, 
                           by=c("RB020","RB030"), 
                           all.x=TRUE)
-datEnterPensions$time <- datEnterPensions$RB010 - datEnterPensions$year
+datEnterPension$time <- datEnterPension$RB010 - datEnterPension$year
+save(datEnterPension, file="data/datEnterPension.RData")
 ```
 
 
@@ -565,9 +591,13 @@ datEnterPensions$time <- datEnterPensions$RB010 - datEnterPensions$year
 
 
 ```{rsubsetenterpensionhistogram}
+load("data/datEnterPension.RData")
+datTp <- datEnterPension[datEnterPension$year==datEnterPension$RB010,]
+tblp <- as.data.frame(table(datTp$RB020,datTp$year))
+
 library(ggplot2)
-tbl <- as.data.frame(table(datEnterPension$RB020,datEnterPension$RB010))
-ggplot(data=tbl, aes(x=factor(Var2),y=Freq,label=Freq)) + 
+
+ggplot(data=tblp, aes(x=factor(Var2),y=Freq,label=Freq)) + 
   geom_bar(stat="identity",position="dodge") + 
   geom_text(vjust=-0.2) + 
   labs(title="Number of individuals entering to pension") + 
@@ -578,9 +608,9 @@ ggplot(data=tbl, aes(x=factor(Var2),y=Freq,label=Freq)) +
 ### Distribution of age of individuals by year & country
 
 
-```{rsubsetfigpension1, fig.height=22}
+```{rsubsetfigpension1, fig.height=14}
 library(ggplot2)
-ggplot(data=datEnterPension, 
+ggplot(data=datTp, 
        aes(x=factor(RB010),y=RX010)) + 
   geom_boxplot() +
   labs(title="Age of retirees") +
@@ -591,10 +621,16 @@ ggplot(data=datEnterPension,
 
 ```{rsubsetfigpension2}
 library(ggplot2)
-ggplot(data=datEnterPension, 
-       aes(x=factor(RB020),y=RX010)) + 
+datTp <- merge(datTp,regime,by="RB020")
+ggplot(data=datTp, 
+       aes(x=factor(reorder(RB020, RX010, median, na.rm=TRUE)),
+           y=RX010,
+           fill=regime_en)) + 
   geom_boxplot() +
-  labs(title="Age of retirees")
+  labs(title="Age of retirees") +
+  manual_fill +
+  theme(legend.position="top")
+
 ```
 
 ### Distribution of absolute employee cash income (gross) before and after the event

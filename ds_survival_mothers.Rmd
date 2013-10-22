@@ -1,0 +1,151 @@
+- [Back to index](index.html)
+
+<link href="http://markuskainu.fi/material/css/rmarkdown.css" rel="stylesheet" type="text/css" title="compact"></link>
+<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+
+`generated at:`
+```{r}
+Sys.time()
+```
+
+```{roptssubset, echo=FALSE}
+opts_chunk$set(echo=TRUE,eval=TRUE, cache=TRUE,warning=FALSE,fig.width=12,fig.height=8)
+```
+
+`log of changes`
+
+date      comment
+--------  -------------------
+20131022  created
+
+# Survival curves of mothers returning work
+
+```{rsurvivalloaddata}
+load("data/datEnterBirth2.RData")
+```
+
+## Variable: PL210x - Main activity by month
+
+The key variale [PL210A - Main activity on January](http://www.gesis.org/?id=8063#PL210A) has following values
+
+Table: Values and labels of var PL210A - Main activity on January
+
+Value Label
+-----
+1     Employee (full-time)
+2     Employee (part-time)
+3 	  Self-employed (full-time)
+4 	  Self-employed (part-time)
+5 	  unemployed
+6 	  Retired
+7 	  Student
+8 	  Other inactive
+
+Below are plotted all the values as stacked bars from all the months of the data
+
+```{rsurvivalplotvalues, fig.height=22}
+library(reshape2)
+varlist <- c("RB010","PL210A","PL210B",
+             "PL210C","PL210D",
+             "PL210E","PL210F",
+             "PL210G","PL210H",
+             "PL210I","PL210J",
+             "PL210K","PL210L")
+
+dat2005 <- datEnterBirth2[datEnterBirth2$RB010 == 2005,varlist]
+dat2005.l <- melt(dat2005, id.vars = "RB010")
+# 1 2006
+dat2006 <- datEnterBirth2[datEnterBirth2$RB010 == 2006,varlist]
+dat2006.l <- melt(dat2006, id.vars = "RB010")
+# 1 2007
+dat2007 <- datEnterBirth2[datEnterBirth2$RB010 == 2007,varlist]
+dat2007.l <- melt(dat2007, id.vars = "RB010")
+# 1 2008
+dat2008 <- datEnterBirth2[datEnterBirth2$RB010 == 2008,varlist]
+dat2008.l <- melt(dat2008, id.vars = "RB010")
+# 1 2009
+dat2009 <- datEnterBirth2[datEnterBirth2$RB010 == 2009,varlist]
+dat2009.l <- melt(dat2009, id.vars = "RB010")
+# 2010
+dat2010 <- datEnterBirth2[datEnterBirth2$RB010 == 2010,varlist]
+dat2010.l <- melt(dat2010, id.vars = "RB010")
+
+dat <- rbind(dat2005.l,
+             dat2006.l,
+             dat2007.l,
+             dat2008.l,
+             dat2009.l,
+             dat2010.l)
+
+dat$time[dat$variable == "PL210A"] <- "01-01"
+dat$time[dat$variable == "PL210B"] <- "02-01"
+dat$time[dat$variable == "PL210C"] <- "03-01"
+dat$time[dat$variable == "PL210D"] <- "04-01"
+dat$time[dat$variable == "PL210F"] <- "05-01"
+dat$time[dat$variable == "PL210G"] <- "06-01"
+dat$time[dat$variable == "PL210H"] <- "07-01"
+dat$time[dat$variable == "PL210I"] <- "08-01"
+dat$time[dat$variable == "PL210J"] <- "09-01"
+dat$time[dat$variable == "PL210K"] <- "10-01"
+dat$time[dat$variable == "PL210L"] <- "11-01"
+dat$time[dat$variable == "PL210M"] <- "12-01"
+dat$date <- paste(dat$RB010,dat$time,sep="-")
+dat$date <- as.Date(dat$date)
+
+dat$value[is.na(dat$value)] <- 0
+
+summary(factor(dat$value))
+
+library(ggplot2)
+tbl <- as.data.frame(table(dat$date,dat$value))
+
+tbl$value[tbl$Var2 == 1] <- "Employee (full-time)"
+tbl$value[tbl$Var2 == 2] <- "Employee (part-time)"
+tbl$value[tbl$Var2 == 3] <- "Self-employed (full-time)"
+tbl$value[tbl$Var2 == 4] <- "Self-employed (part-time)"
+tbl$value[tbl$Var2 == 5] <- "unemployed"
+tbl$value[tbl$Var2 == 6] <- "Retired"
+tbl$value[tbl$Var2 == 7] <- "Student"
+tbl$value[tbl$Var2 == 8] <- "Other inactive"
+tbl$value[tbl$Var2 == 0] <- "missing data"
+
+tbl$value <- factor(tbl$value, levels=c("Employee (full-time)",
+                                        "Employee (part-time)",
+                                        "Self-employed (full-time)",
+                                        "Self-employed (part-time)",
+                                        "unemployed",
+                                        "Retired",
+                                        "Student",
+                                        "Other inactive",
+                                        "missing data"))
+
+manual_fill <- scale_fill_manual(values=c("#999999", "#E69F00", 
+                                          "#56B4E9", "#009E73",
+                                          "#D55E00", "#CC79A7",
+                                          "#0072B2","#F0E442",
+                                          "#000000"))
+
+ggplot(tbl, aes(x=Var1,y=Freq,fill=value)) +
+         geom_bar(stat="identity") +
+  coord_flip() + manual_fill +
+  theme(legend.position="top")
+
+```
+
+
+## creating a survival data.frame
+
+[CRAN Task View: Survival Analysis](http://cran.r-project.org/web/views/Survival.html) works as a starting point.
+
+> Survival analysis, also called event history analysis in social science, or reliability analysis in engineering, deals with time until occurrence of an event of interest. However, this failure time may not be observed within the relevant time period, producing so-called censored observations.
+
+>This task view aims at presenting the useful R packages for the analysis of time to event data. 
+
+Misc links to go further:
+
+- http://timchurches.github.io/ggplot2er/index.html#69
+- http://cran.r-project.org/web/views/Survival.html
+- https://github.com/christophergandrud/simPH
+- http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2318977&download=yes
+
+
