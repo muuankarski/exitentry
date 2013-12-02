@@ -1,3 +1,32 @@
+setwd("~/workspace/eusilc/entryexit2013")
+library(knitr)
+library(markdown)
+#
+knit('index.Rmd','README.md')
+knit2html('index.Rmd', 
+          stylesheet="~/workspace/web/css/rmarkdown.css",
+          options = c('toc', markdown::markdownHTMLOptions(TRUE)))
+#
+knit2html('load_merge.Rmd', 
+          stylesheet="~/workspace/web/css/rmarkdown.css",
+          options = c('toc', markdown::markdownHTMLOptions(TRUE)))
+#
+knit2html('subset.Rmd', 
+          stylesheet="~/workspace/web/css/rmarkdown.css",
+          options = c('toc', markdown::markdownHTMLOptions(TRUE)))
+#
+knit2html('missing.Rmd', 
+          stylesheet="~/workspace/web/css/rmarkdown.css",
+          options = c('toc', markdown::markdownHTMLOptions(TRUE)))
+#
+knit2html('ds_survival_mothers.Rmd', 
+          stylesheet="~/workspace/web/css/rmarkdown.css",
+          options = c('toc', markdown::markdownHTMLOptions(TRUE)))
+#
+
+
+
+
 library(knitr)
 setwd("~/workspace/eusilc/entryexit2013")
 knit("index.Rmd")
@@ -16,6 +45,9 @@ system("~/.cabal/bin/pandoc -s missing.md -o missing.html --toc --number-section
 
 knit("ds_survival_mothers.Rmd")
 system("~/.cabal/bin/pandoc -s ds_survival_mothers.md -o ds_survival_mothers.html --toc --number-section")
+
+
+
 
 
 

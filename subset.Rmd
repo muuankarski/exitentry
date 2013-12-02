@@ -1,23 +1,10 @@
 - [Back to index](index.html)
 
-<link href="http://markuskainu.fi/material/css/rmarkdown.css" rel="stylesheet" type="text/css" title="compact"></link>
-<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
-
-`generated at:`
-```{r}
-Sys.time()
-```
-
 ```{roptssubset, echo=FALSE}
 opts_chunk$set(echo=FALSE,eval=TRUE, cache=TRUE,warning=FALSE,fig.width=12,fig.height=8)
 
 ```
 
-`log of changes`
-
-date      comment
---------  -------------------
-20131022  correction for histograms & age boxplots -> only events per year; ordering boxlots & adding regime colors 
 
 # Subsetting & merging the dataset for analysis
 
@@ -50,19 +37,19 @@ As for **exit to labour market** and for **enter to pension system** the informa
 
 Table: values and labels in variable PL031
 
-Value Label
------ -----------------------------
-1     Employee working full-time
-2     Employee working part-time
-3     Self-employed working full-time (including family worker)
-4     Self-employed working part-time (including family worker)
-5     Unemployed
-6     Pupil, student, further training, unpaid work experience
-7     In retirement or in early retirement or has given up business
-8     Permanently disabled or/and unfit to work
-9     In compulsory military community or service
-10    Fulfilling domestic tasks and care responsibilities
-11    Other inactive person
+| Value | Label |
+| ----- | ------ |
+| 1 | Employee working full-time |
+| 2 | Employee working part-time |
+| 3 | Self-employed working full-time (including family worker) |
+| 4 | Self-employed working part-time (including family worker) |
+| 5 | Unemployed |
+| 6 | Pupil, student, further training, unpaid work experience |
+| 7 | In retirement or in early retirement or has given up business |
+| 8 | Permanently disabled or/and unfit to work |
+| 9 | In compulsory military community or service |
+| 10 | Fulfilling domestic tasks and care responsibilities |
+| 11 | Other inactive person |
 
 **To put it briefly,**
 
@@ -75,17 +62,17 @@ Here the solution is to extract new babies based on variable [RB110](http://www.
 
 Table: values and labels in variable 
 
-Value                             Label
------                             -----------------------------
-**For current household members**
-1                                 Was in this household in previous waves or current household member
-2                                 Moved into this household from another sample household since previous wave
-3                                 Move into this household from outside sample since previous wave
-4                                 Newly born into this household since last wave
-**Not current household members**
-5                                 Moved out since previous wave or last interview if not contacted in previous wave
-6                                 Died
-7                                 Lived in the household at least three months during the i
+| Value | Label |
+| ----- | ------ |
+| **For current household members** | |
+| 1 | Was in this household in previous waves or current household member |
+| 2 | Moved into this household from another sample household since previous wave |
+| 3 | Move into this household from outside sample since previous wave |
+| 4 | Newly born into this household since last wave |
+| **Not current household members** | |
+| 5 | Moved out since previous wave or last interview if not contacted in previous wave |
+| 6 | Died |
+| 7 | Lived in the household at least three months during the i|
 
 
 
@@ -679,45 +666,43 @@ Following variables are selected:
 
 From **personal register**
 
-varname                                         label
--------------------------------------------     ----------
-PER_ID                                          unique year, cntry, personal ID
-[RB010](http://www.gesis.org/?id=8062#RB010)    year
-[RB020](http://www.gesis.org/?id=8062#RB020)    cntry
-[RB030](http://www.gesis.org/?id=8062#RB030)    Personal ID
-[RB040](http://www.gesis.org/?id=8062#RB040)    Current Household ID
-[RB060](http://www.gesis.org/?id=8062#RB060)    Personal base weight
-[RB080](http://www.gesis.org/?id=8062#RB080)    Year of birth
-[RB090](http://www.gesis.org/?id=8062#RB090)    Sex
-[RB110](http://www.gesis.org/?id=8062#RB110)    Membership status
-[RB210](http://www.gesis.org/?id=8062#RB210)    Basic activity status
-[RB230](http://www.gesis.org/?id=8062#RB230)    Mother ID
-[RX010](http://www.gesis.org/?id=8062#RX010)    Age at the date of the interview
-[RX020](http://www.gesis.org/?id=8062#RX020)    Age at the end of the income reference period
+| varname | label |
+| ------- | ----- |
+| PER_ID | unique year, cntry, personal ID |
+| [RB010](http://www.gesis.org/?id=8062#RB010) |  year |
+| [RB020](http://www.gesis.org/?id=8062#RB020) |  cntry |
+| [RB030](http://www.gesis.org/?id=8062#RB030) |  Personal ID |
+| [RB040](http://www.gesis.org/?id=8062#RB040) |  Current Household ID |
+| [RB060](http://www.gesis.org/?id=8062#RB060) |  Personal base weight |
+| [RB080](http://www.gesis.org/?id=8062#RB080) |  Year of birth |
+| [RB090](http://www.gesis.org/?id=8062#RB090) |  Sex |
+| [RB110](http://www.gesis.org/?id=8062#RB110) |  Membership status |
+| [RB210](http://www.gesis.org/?id=8062#RB210) |  Basic activity status |
+| [RB230](http://www.gesis.org/?id=8062#RB230) |  Mother ID |
+| [RX010](http://www.gesis.org/?id=8062#RX010) |  Age at the date of the interview |
+| [RX020](http://www.gesis.org/?id=8062#RX020) |  Age at the end of the income reference period |
+
 
 From **personal data**
 
-varname                                         label
--------------------------------------------     ----------
-[PB190](http://www.gesis.org/?id=8063#PB190)    Marital status
-[PB200](http://www.gesis.org/?id=8063#PB200)    Consensual union
-[PL030](http://www.gesis.org/?id=8063#PL030)    Self-defined current economic status
-[PL040](http://www.gesis.org/?id=8063#PL040)    Status in employment
-[PY010G](http://www.gesis.org/?id=8063#PY010G)  Employee cash or near cash income(gross)
-
-
-
+| varname | label |
+| ------- | ----- |
+| [PB190](http://www.gesis.org/?id=8063#PB190) |  Marital status |
+| [PB200](http://www.gesis.org/?id=8063#PB200) |  Consensual union |
+| [PL030](http://www.gesis.org/?id=8063#PL030) |  Self-defined current economic status |
+| [PL040](http://www.gesis.org/?id=8063#PL040) |  Status in employment |
+| [PY010G](http://www.gesis.org/?id=8063#PY010G) |  Employee cash or near cash income(gross) |
 
 
 From **household data**
 
-varname                                         label
--------------------------------------------     ----------
-[HB010](http://www.gesis.org/?id=8061#HB010)    Year of the survey
-[HB020](http://www.gesis.org/?id=8061#HB020)    Country
-[HB030](http://www.gesis.org/?id=8061#HB030)    Household id
-DB110: Household status
-[HY020](http://www.gesis.org/?id=8061#HY020)    total disposable household income
-HX050                                           Equivivalized household size
-HX090                                           Equivivalized household income
+| varname | label |
+| ------- | ----- |
+| [HB010](http://www.gesis.org/?id=8061#HB010) |  Year of the survey |
+| [HB020](http://www.gesis.org/?id=8061#HB020) |  Country |
+| [HB030](http://www.gesis.org/?id=8061#HB030) |  Household id |
+| DB110 | Household status |
+| [HY020](http://www.gesis.org/?id=8061#HY020) |  total disposable household income |
+| HX050 | Equivivalized household size |
+| HX090 | Equivivalized household income |
 

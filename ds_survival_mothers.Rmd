@@ -1,25 +1,11 @@
 - [Back to index](index.html)
 
-<link href="http://markuskainu.fi/material/css/rmarkdown.css" rel="stylesheet" type="text/css" title="compact"></link>
-<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
-
-`generated at:`
-```{r}
-Sys.time()
-```
-
-```{roptssubset, echo=FALSE}
-opts_chunk$set(echo=FALSE,eval=TRUE, cache=TRUE,warning=FALSE,message=FALSE,fig.width=12,fig.height=8)
-```
-
-`log of changes`
-
-date      comment
---------  -------------------
-20131022  created
-20131023  Reshaped the data suitable for Cox ph models and survival curves. Some descriptive graphics along the way
-
 # Survival curves of mothers returning work
+
+
+```{roptsmissing, echo=FALSE}
+opts_chunk$set(echo=FALSE,eval=TRUE,fig.height=8, fig.width=10,cache=TRUE)
+```
 
 ```{rsurvivalloaddata}
 load("data/datEnterBirth2.RData")
@@ -31,16 +17,16 @@ The key variale [PL210A - Main activity on January](http://www.gesis.org/?id=806
 
 Table: Values and labels of var PL210A - Main activity on January
 
-Value Label
------ -------
-1     Employee (full-time)
-2     Employee (part-time)
-3 	  Self-employed (full-time)
-4 	  Self-employed (part-time)
-5 	  unemployed
-6 	  Retired
-7 	  Student
-8 	  Other inactive
+| Value | Label |
+| ----- | ----- |
+| 1 | Employee (full-time) |
+| 2 | Employee (part-time) |
+| 3 | Self-employed (full-time) |
+| 4 | Self-employed (part-time) |
+| 5 | unemployed |
+| 6 | Retired |
+| 7 | Student |
+| 8 | Other inactive |
 
 Below are plotted all the values as stacked bars from all the months of the data
 
@@ -374,8 +360,11 @@ df.long2 <- df.long2[!is.na(df.long2$value), ]
 df.long3 <- merge(df.long1,df.long2,by="PER_ID",all.x=TRUE)
 
 library(stringr)
-df.long3$startDate <- as.Date(12753 + (as.numeric(str_replace(df.long3$var_start, "start", "")))*31)
-df.long3$endDate <- as.Date(12753 + (as.numeric(str_replace(df.long3$var_end, "end", "")))*31)
+library(zoo)
+df.long3$startDate <- as.Date(12753 + (as.numeric(str_replace(df.long3$var_start, "start",
+                                                              "")))*31)
+df.long3$endDate <- as.Date(12753 + (as.numeric(str_replace(df.long3$var_end,
+                                                            "end", "")))*31)
 df.long3$duration <- as.numeric(df.long3$endDate - df.long3$startDate)/31
 #df.long3 <- df.long3[df.long3$duration > 0,]
 
@@ -405,6 +394,7 @@ ggplot(df.long3,
   labs(title="Duration of maternity leave spells by country",
        x="duration in months") +
   facet_wrap(~RB020, ncol=2)
+
 ```
 
 
@@ -417,6 +407,7 @@ source("survival/ggsurv.R")
 kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
 ggsurv(kmsurvival, main="survival curves from Cox Proportional Hazards model")
 
+
 ```
 
 
@@ -424,9 +415,9 @@ ggsurv(kmsurvival, main="survival curves from Cox Proportional Hazards model")
 library(simPH)
 kmsurvival2 <- survfit(Surv(duration,event) ~ RB020, data = df.long3)
 ggfitStrata(kmsurvival2, byStrata = TRUE, title="Stratified survival curves from Cox Proportional Hazards model")
+
+
 ```
-
-
 
 
 
@@ -439,6 +430,7 @@ Subset data
 bladder1 <- bladder[bladder$enum < 5, ]
 M1 <- coxph(Surv(stop, event) ~ (rx + size + number) * strata(enum) + cluster(id), bladder1)
 M1Fit <- survfit(kmsurvival2)
+
 
 
 df.long3$RB020num <- as.numeric(df.long3$RB020)

@@ -1,29 +1,13 @@
 - [Back to index](index.html)
 
 
-<link href="http://markuskainu.fi/material/css/rmarkdown.css" rel="stylesheet" type="text/css" title="compact"></link>
-<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
-
-`generated at:`
-```{r, echo=FALSE}
-Sys.time()
-```
-
 
 ```{roptsmissing, echo=FALSE}
 opts_chunk$set(echo=FALSE,eval=TRUE,fig.height=8, fig.width=10,cache=TRUE)
 ```
 
-`log of changes`
-
-date      comment
---------  -------------------
-20131022  This is up-to-date, misc ad-hoc links removed
-
 
 # Diagnostics & Missing data
-
-
 
 
 Following analysis are based on the orinal merged data
