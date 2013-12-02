@@ -5,14 +5,9 @@
 byroo
 cache
 entryexit2013.Rproj
-figure
-index.html
 index.md
-load_merge.html
 load_merge.md
-missing.html
 missing.md
-subset.html
 subset.md
 temp
 template.Rmd
@@ -20,7 +15,6 @@ data
 Rplot.png
 subset.pdf
 synnyttaneet.png
-ds_survival_mothers.html
 ds_survival_mothers.md
 papers
 survival
