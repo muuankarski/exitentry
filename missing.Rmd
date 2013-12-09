@@ -1,0 +1,230 @@
+- [Back to index](index.html)
+
+
+
+```{roptsmissing, echo=FALSE}
+opts_chunk$set(echo=FALSE,eval=TRUE,fig.height=8, fig.width=10,cache=TRUE)
+```
+
+
+# Diagnostics & Missing data
+
+
+Following analysis are based on the orinal merged data
+
+```{rsubsetloadmergedpersonalfiles}
+# Load the merged personal level panel datasets
+load("~/workspace/data/eu_silc/2008/longi_rev3/per_merge.RData")
+per_merge08 <- per_merge
+load("~/workspace/data/eu_silc/2009/longi_rev3/per_merge.RData")
+per_merge09 <- per_merge
+load("~/workspace/data/eu_silc/2010/longi_rev1/per_merge.RData")
+per_merge10 <- per_merge
+rm(per_merge)
+```
+
+## Missing data from our key variables
+
+## Education variables
+
+### PL030: Self-defined current economic status
+- [http://www.gesis.org/?id=8063#PL030](http://www.gesis.org/?id=8063#PL030)
+
+```{rmissingeducationpl030}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+pl030_08 <- per_merge08[, c("RB020", "PL030")]
+pl030_09 <- per_merge09[, c("RB020", "PL030")]
+pl030_10 <- per_merge10[, c("RB020", "PL030")]
+
+barMiss(pl030_08, only.miss = FALSE)
+barMiss(pl030_09, only.miss = FALSE)
+barMiss(pl030_10, only.miss = FALSE)
+
+```
+
+**notes**
+
+- Massive missing data..
+
+### PL031: Self-defined current economic status
+- [http://www.gesis.org/?id=8063#PL031](http://www.gesis.org/?id=8063#PL030)
+
+
+```{rmissingeducationpl031}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+pl031_08 <- per_merge08[, c("RB020", "PL031")]
+pl031_09 <- per_merge09[, c("RB020", "PL031")]
+pl031_10 <- per_merge10[, c("RB020", "PL031")]
+
+barMiss(pl031_08, only.miss = FALSE)
+barMiss(pl031_09, only.miss = FALSE)
+barMiss(pl031_10, only.miss = FALSE)
+
+```
+
+**notes**
+
+- not in 2008 data
+- Massive missing data..
+
+### RB210 - Basic activity status
+- [http://www.gesis.org/?id=8062#RB210](http://www.gesis.org/?id=8062#RB210)
+
+```{rmissingeducationRB210}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+RB210_08 <- per_merge08[, c("RB020", "RB210")]
+RB210_09 <- per_merge09[, c("RB020", "RB210")]
+RB210_10 <- per_merge10[, c("RB020", "RB210")]
+
+barMiss(RB210_08, only.miss = FALSE)
+barMiss(RB210_09, only.miss = FALSE)
+barMiss(RB210_10, only.miss = FALSE)
+```
+
+**notes**
+
+-  nothing about the education..
+-  good for outRetirement analysis
+
+### RB170 - Main activity status during the income reference period
+
+- [http://www.gesis.org/?id=8062#RB170](http://www.gesis.org/?id=8062#RB170)
+
+```{rmissingeducationRB170}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+RB170_08 <- per_merge08[, c("RB020", "RB170")]
+RB170_09 <- per_merge09[, c("RB020", "RB170")]
+RB170_10 <- per_merge10[, c("RB020", "RB170")]
+
+barMiss(RB170_08, only.miss = FALSE)
+barMiss(RB170_09, only.miss = FALSE)
+barMiss(RB170_10, only.miss = FALSE)
+```
+
+**notes**
+
+-  massive missing data -> useless
+
+### PY140G/PY140N: Education-related allowances
+
+- [http://www.gesis.org/?id=8063#PY140G](http://www.gesis.org/?id=8063#PY140G)
+
+```{rmissingeducationPY140G}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+PY140G_08 <- per_merge08[, c("RB020", "PY140G")]
+PY140G_09 <- per_merge09[, c("RB020", "PY140G")]
+PY140G_10 <- per_merge10[, c("RB020", "PY140G")]
+
+barMiss(PY140G_08, only.miss = FALSE)
+barMiss(PY140G_09, only.miss = FALSE)
+barMiss(PY140G_10, only.miss = FALSE)
+
+```
+
+## Employee cash income
+
+
+### Net
+
+```{rmissingeducationPY010N}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+PY010N_08 <- per_merge08[, c("RB020", "PY010N")]
+PY010N_09 <- per_merge09[, c("RB020", "PY010N")]
+PY010N_10 <- per_merge10[, c("RB020", "PY010N")]
+
+barMiss(PY010N_08, only.miss = FALSE)
+barMiss(PY010N_09, only.miss = FALSE)
+barMiss(PY010N_10, only.miss = FALSE)
+
+```
+
+### Gross
+
+```{rmissingeducationPY010G}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+PY010G_08 <- per_merge08[, c("RB020", "PY010G")]
+PY010G_09 <- per_merge09[, c("RB020", "PY010G")]
+PY010G_10 <- per_merge10[, c("RB020", "PY010G")]
+
+barMiss(PY010G_08, only.miss = FALSE)
+barMiss(PY010G_09, only.miss = FALSE)
+barMiss(PY010G_10, only.miss = FALSE)
+
+```
+
+## Monthly activity records (for plotting survival curves)
+
+### Main activity on January
+
+```{rmissingeducationPL210A}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+PL210A_08 <- per_merge08[, c("RB020", "PL210A")]
+PL210A_09 <- per_merge09[, c("RB020", "PL210A")]
+PL210A_10 <- per_merge10[, c("RB020", "PL210A")]
+
+barMiss(PL210A_08, only.miss = FALSE)
+barMiss(PL210A_09, only.miss = FALSE)
+barMiss(PL210A_10, only.miss = FALSE)
+
+```
+
+### Main activity on April
+
+
+```{rmissingeducationPL210D}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+PL210D_08 <- per_merge08[, c("RB020", "PL210D")]
+PL210D_09 <- per_merge09[, c("RB020", "PL210D")]
+PL210D_10 <- per_merge10[, c("RB020", "PL210D")]
+
+barMiss(PL210D_08, only.miss = FALSE)
+barMiss(PL210D_09, only.miss = FALSE)
+barMiss(PL210D_10, only.miss = FALSE)
+
+```
+
+
+### Main activity on December
+
+
+```{rmissingeducationPL210L}
+library(ggplot2)
+library(reshape2)
+library(VIM)
+
+PL210L_08 <- per_merge08[, c("RB020", "PL210L")]
+PL210L_09 <- per_merge09[, c("RB020", "PL210L")]
+PL210L_10 <- per_merge10[, c("RB020", "PL210L")]
+
+barMiss(PL210L_08, only.miss = FALSE)
+barMiss(PL210L_09, only.miss = FALSE)
+barMiss(PL210L_10, only.miss = FALSE)
+
+```

@@ -1,0 +1,487 @@
+- [Back to index](index.html)
+
+# Survival curves of mothers returning work
+
+
+```{roptsmissing, echo=FALSE}
+opts_chunk$set(echo=FALSE,eval=TRUE,fig.height=8, fig.width=10,cache=TRUE)
+```
+
+```{rsurvivalloaddata}
+load("data/datEnterBirth2.RData")
+```
+
+## Variable: PL210x - Main activity by month
+
+The key variale [PL210A - Main activity on January](http://www.gesis.org/?id=8063#PL210A) has following values
+
+Table: Values and labels of var PL210A - Main activity on January
+
+| Value | Label |
+| ----- | ----- |
+| 1 | Employee (full-time) |
+| 2 | Employee (part-time) |
+| 3 | Self-employed (full-time) |
+| 4 | Self-employed (part-time) |
+| 5 | unemployed |
+| 6 | Retired |
+| 7 | Student |
+| 8 | Other inactive |
+
+Below are plotted all the values as stacked bars from all the months of the data
+
+### All the European mothers
+
+```{rsurvivalplotvalues, fig.height=14}
+library(reshape2)
+varlist <- c("PER_ID","RB010","RB020","PL210A","PL210B",
+             "PL210C","PL210D",
+             "PL210E","PL210F",
+             "PL210G","PL210H",
+             "PL210I","PL210J",
+             "PL210K","PL210L")
+
+dat2005 <- datEnterBirth2[datEnterBirth2$RB010 == 2005,varlist]
+dat2005.l <- melt(dat2005, id.vars = c("RB010","RB020","PER_ID"))
+# 1 2006
+dat2006 <- datEnterBirth2[datEnterBirth2$RB010 == 2006,varlist]
+dat2006.l <- melt(dat2006, id.vars = c("RB010","RB020","PER_ID"))
+# 1 2007
+dat2007 <- datEnterBirth2[datEnterBirth2$RB010 == 2007,varlist]
+dat2007.l <- melt(dat2007, id.vars = c("RB010","RB020","PER_ID"))
+# 1 2008
+dat2008 <- datEnterBirth2[datEnterBirth2$RB010 == 2008,varlist]
+dat2008.l <- melt(dat2008, id.vars = c("RB010","RB020","PER_ID"))
+# 1 2009
+dat2009 <- datEnterBirth2[datEnterBirth2$RB010 == 2009,varlist]
+dat2009.l <- melt(dat2009, id.vars = c("RB010","RB020","PER_ID"))
+# 2010
+dat2010 <- datEnterBirth2[datEnterBirth2$RB010 == 2010,varlist]
+dat2010.l <- melt(dat2010, id.vars = c("RB010","RB020","PER_ID"))
+
+dat <- rbind(dat2005.l,
+             dat2006.l,
+             dat2007.l,
+             dat2008.l,
+             dat2009.l,
+             dat2010.l)
+
+dat$time[dat$variable == "PL210A"] <- "01-01"
+dat$time[dat$variable == "PL210B"] <- "02-01"
+dat$time[dat$variable == "PL210C"] <- "03-01"
+dat$time[dat$variable == "PL210D"] <- "04-01"
+dat$time[dat$variable == "PL210E"] <- "05-01"
+dat$time[dat$variable == "PL210F"] <- "06-01"
+dat$time[dat$variable == "PL210G"] <- "07-01"
+dat$time[dat$variable == "PL210H"] <- "08-01"
+dat$time[dat$variable == "PL210I"] <- "09-01"
+dat$time[dat$variable == "PL210J"] <- "10-01"
+dat$time[dat$variable == "PL210K"] <- "11-01"
+dat$time[dat$variable == "PL210L"] <- "12-01"
+dat$date <- paste(dat$RB010,dat$time,sep="-")
+dat$date <- as.Date(dat$date)
+
+dat$value[is.na(dat$value)] <- 0
+
+library(ggplot2)
+tbl <- as.data.frame(table(dat$date,dat$value))
+
+tbl$value[tbl$Var2 == 1] <- "Employee (full-time)"
+tbl$value[tbl$Var2 == 2] <- "Employee (part-time)"
+tbl$value[tbl$Var2 == 3] <- "Self-employed (full-time)"
+tbl$value[tbl$Var2 == 4] <- "Self-employed (part-time)"
+tbl$value[tbl$Var2 == 5] <- "unemployed"
+tbl$value[tbl$Var2 == 6] <- "Retired"
+tbl$value[tbl$Var2 == 7] <- "Student"
+tbl$value[tbl$Var2 == 8] <- "Other inactive"
+tbl$value[tbl$Var2 == 0] <- "missing data"
+
+tbl$value <- factor(tbl$value, levels=c("Employee (full-time)",
+                                        "Employee (part-time)",
+                                        "Self-employed (full-time)",
+                                        "Self-employed (part-time)",
+                                        "unemployed",
+                                        "Retired",
+                                        "Student",
+                                        "Other inactive",
+                                        "missing data"))
+
+manual_fill <- scale_fill_manual(values=c("#999999", "#E69F00", 
+                                          "#56B4E9", "#009E73",
+                                          "#D55E00", "#CC79A7",
+                                          "#0072B2","#F0E442",
+                                          "#000000"))
+
+ggplot(tbl, aes(x=Var1,y=Freq,fill=value)) +
+         geom_bar(stat="identity") +
+  coord_flip() + manual_fill +
+  theme(legend.position="top") +
+  guides(fill = guide_legend(nrow = 2))
+
+```
+
+### Mothers by country
+
+```{rsurvivalplotvaluesbycountry, fig.height=32}
+tbl <- as.data.frame(table(dat$RB020,dat$date,dat$value))
+
+tbl$value[tbl$Var3 == 1] <- "Employee (full-time)"
+tbl$value[tbl$Var3 == 2] <- "Employee (part-time)"
+tbl$value[tbl$Var3 == 3] <- "Self-employed (full-time)"
+tbl$value[tbl$Var3 == 4] <- "Self-employed (part-time)"
+tbl$value[tbl$Var3 == 5] <- "unemployed"
+tbl$value[tbl$Var3 == 6] <- "Retired"
+tbl$value[tbl$Var3 == 7] <- "Student"
+tbl$value[tbl$Var3 == 8] <- "Other inactive"
+tbl$value[tbl$Var3 == 0] <- "missing data"
+
+tbl$value <- factor(tbl$value, levels=c("Employee (full-time)",
+                                        "Employee (part-time)",
+                                        "Self-employed (full-time)",
+                                        "Self-employed (part-time)",
+                                        "unemployed",
+                                        "Retired",
+                                        "Student",
+                                        "Other inactive",
+                                        "missing data"))
+
+manual_fill <- scale_fill_manual(values=c("#999999", "#E69F00", 
+                                          "#56B4E9", "#009E73",
+                                          "#D55E00", "#CC79A7",
+                                          "#0072B2","#F0E442",
+                                          "#000000"))
+
+ggplot(tbl, aes(x=Var2,y=Freq,fill=value)) +
+         geom_bar(stat="identity") +
+  coord_flip() + manual_fill +
+  theme(legend.position="top") +
+  facet_wrap(~Var1,ncol=4) +
+  guides(fill = guide_legend(nrow = 2))
+
+
+```
+
+**Some notes**
+
+- Data is perfect from some countries and useless in others
+- From the latest years it is basically missing
+
+So, I will demonstrate the survival analysis by using data from years 2005 - 2008 and from countries `c("AT","BE","BG","CY","CZ","EE","EL","ES","FR","HU","IE","IT","LT","LU","LV","PL","PT","SI","SK","UK","MT")`. We are excluding `"DK","FI","IS","NL","NO","SE"`.
+
+## creating a survival data.frame
+
+[CRAN Task View: Survival Analysis](http://cran.r-project.org/web/views/Survival.html) works as a starting point.
+
+> Survival analysis, also called event history analysis in social science, or reliability analysis in engineering, deals with time until occurrence of an event of interest. However, this failure time may not be observed within the relevant time period, producing so-called censored observations.
+
+>This task view aims at presenting the useful R packages for the analysis of time to event data. 
+
+### Filtering countries & years with missing data
+
+*So, I will demonstrate the survival analysis by using data from years 2005 - 2008 and from countries `c("AT","BE","BG","CY","CZ","EE","EL","ES","FR","HU","IE","IT","LT","LU","LV","PL","PT","SI","SK","UK","MT")`.*
+
+And get this data.
+
+```{rsurvivalfiltermissindata1}
+
+clist <- c("AT","BE","BG","CY","CZ","EE","EL","ES","FR","HU","IE","IT","LT","LU","LV","PL","PT","SI","SK","UK","MT")
+
+datS <- dat[dat$RB020 %in% clist,]
+datS <- datS[datS$RB010 <= 2008,]
+
+datS$RB020 <- factor(datS$RB020)
+
+tbl <- as.data.frame(table(datS$RB020,datS$date,datS$value))
+
+tbl$value[tbl$Var3 == 1] <- "Employee (full-time)"
+tbl$value[tbl$Var3 == 2] <- "Employee (part-time)"
+tbl$value[tbl$Var3 == 3] <- "Self-employed (full-time)"
+tbl$value[tbl$Var3 == 4] <- "Self-employed (part-time)"
+tbl$value[tbl$Var3 == 5] <- "unemployed"
+tbl$value[tbl$Var3 == 6] <- "Retired"
+tbl$value[tbl$Var3 == 7] <- "Student"
+tbl$value[tbl$Var3 == 8] <- "Other inactive"
+tbl$value[tbl$Var3 == 0] <- "missing data"
+
+tbl$value <- factor(tbl$value, levels=c("Employee (full-time)",
+                                        "Employee (part-time)",
+                                        "Self-employed (full-time)",
+                                        "Self-employed (part-time)",
+                                        "unemployed",
+                                        "Retired",
+                                        "Student",
+                                        "Other inactive",
+                                        "missing data"))
+
+manual_fill <- scale_fill_manual(values=c("#999999", "#E69F00", 
+                                          "#56B4E9", "#009E73",
+                                          "#D55E00", "#CC79A7",
+                                          "#0072B2","#F0E442",
+                                          "#000000"))
+
+ggplot(tbl, aes(x=Var2,y=Freq,fill=value)) +
+         geom_bar(stat="identity") +
+  coord_flip() + manual_fill +
+  theme(legend.position="top") +
+  facet_wrap(~Var1,ncol=4) +
+  guides(fill = guide_legend(nrow = 2))
+
+
+```
+
+### Discrete time data
+
+We assume that mothers on welfare benefits belong to group 8 (Other inactive) and therefore an event would change over to value 1:4 (employee/self-employed - full/part-time)
+
+
+```{rsurvivaldatacreation1}
+
+# let's create an event variable
+library(reshape2)
+datS$vdate <- paste("v",datS$date,sep="_")
+
+df.wide <- dcast(datS, PER_ID + RB020 ~ vdate, 
+                 value.var = "value")
+
+df.wide[is.na(df.wide)] <- 0
+
+# start date - from missing data to any value
+df.wide$start1[df.wide[,3] == 0 & df.wide[,4] != 0] <- 1
+df.wide$start2[df.wide[,4] == 0 & df.wide[,5] != 0] <- 1
+df.wide$start3[df.wide[,5] == 0 & df.wide[,6] != 0] <- 1
+df.wide$start4[df.wide[,6] == 0 & df.wide[,7] != 0] <- 1
+df.wide$start5[df.wide[,7] == 0 & df.wide[,8] != 0] <- 1
+df.wide$start6[df.wide[,8] == 0 & df.wide[,9] != 0] <- 1
+df.wide$start7[df.wide[,9] == 0 & df.wide[,10] != 0] <- 1
+df.wide$start8[df.wide[,10] == 0 & df.wide[,11] != 0] <- 1
+df.wide$start9[df.wide[,11] == 0 & df.wide[,12] != 0] <- 1
+df.wide$start10[df.wide[,12] == 0 & df.wide[,13] != 0] <- 1
+df.wide$start11[df.wide[,13] == 0 & df.wide[,14] != 0] <- 1
+df.wide$start12[df.wide[,14] == 0 & df.wide[,15] != 0] <- 1
+df.wide$start13[df.wide[,15] == 0 & df.wide[,16] != 0] <- 1
+df.wide$start14[df.wide[,16] == 0 & df.wide[,17] != 0] <- 1
+df.wide$start15[df.wide[,17] == 0 & df.wide[,18] != 0] <- 1
+df.wide$start16[df.wide[,18] == 0 & df.wide[,19] != 0] <- 1
+df.wide$start17[df.wide[,19] == 0 & df.wide[,20] != 0] <- 1
+df.wide$start18[df.wide[,20] == 0 & df.wide[,21] != 0] <- 1
+df.wide$start19[df.wide[,21] == 0 & df.wide[,22] != 0] <- 1
+df.wide$start20[df.wide[,22] == 0 & df.wide[,23] != 0] <- 1
+df.wide$start21[df.wide[,23] == 0 & df.wide[,24] != 0] <- 1
+df.wide$start22[df.wide[,24] == 0 & df.wide[,25] != 0] <- 1
+df.wide$start23[df.wide[,25] == 0 & df.wide[,26] != 0] <- 1
+df.wide$start24[df.wide[,26] == 0 & df.wide[,27] != 0] <- 1
+df.wide$start25[df.wide[,27] == 0 & df.wide[,28] != 0] <- 1
+df.wide$start26[df.wide[,28] == 0 & df.wide[,29] != 0] <- 1
+df.wide$start27[df.wide[,29] == 0 & df.wide[,30] != 0] <- 1
+df.wide$start28[df.wide[,30] == 0 & df.wide[,31] != 0] <- 1
+df.wide$start29[df.wide[,31] == 0 & df.wide[,32] != 0] <- 1
+df.wide$start30[df.wide[,32] == 0 & df.wide[,33] != 0] <- 1
+df.wide$start31[df.wide[,33] == 0 & df.wide[,34] != 0] <- 1
+df.wide$start32[df.wide[,34] == 0 & df.wide[,35] != 0] <- 1
+df.wide$start33[df.wide[,35] == 0 & df.wide[,36] != 0] <- 1
+df.wide$start34[df.wide[,36] == 0 & df.wide[,37] != 0] <- 1
+df.wide$start35[df.wide[,37] == 0 & df.wide[,38] != 0] <- 1
+df.wide$start36[df.wide[,38] == 0 & df.wide[,39] != 0] <- 1
+df.wide$start37[df.wide[,39] == 0 & df.wide[,40] != 0] <- 1
+df.wide$start38[df.wide[,40] == 0 & df.wide[,41] != 0] <- 1
+df.wide$start39[df.wide[,41] == 0 & df.wide[,42] != 0] <- 1
+df.wide$start40[df.wide[,42] == 0 & df.wide[,43] != 0] <- 1
+df.wide$start41[df.wide[,43] == 0 & df.wide[,44] != 0] <- 1
+df.wide$start42[df.wide[,44] == 0 & df.wide[,45] != 0] <- 1
+df.wide$start43[df.wide[,45] == 0 & df.wide[,46] != 0] <- 1
+df.wide$start44[df.wide[,46] == 0 & df.wide[,47] != 0] <- 1
+df.wide$start45[df.wide[,47] == 0 & df.wide[,48] != 0] <- 1
+df.wide$start46[df.wide[,48] == 0 & df.wide[,49] != 0] <- 1
+df.wide$start47[df.wide[,49] == 0 & df.wide[,50] != 0] <- 1
+# end date
+df.wide$end1[df.wide[,3] == 8 & df.wide[,4] %in% 1:4] <- 1
+df.wide$end2[df.wide[,4] == 8 & df.wide[,5] %in% 1:4] <- 1
+df.wide$end3[df.wide[,5] == 8 & df.wide[,6] %in% 1:4] <- 1
+df.wide$end4[df.wide[,6] == 8 & df.wide[,7] %in% 1:4] <- 1
+df.wide$end5[df.wide[,7] == 8 & df.wide[,8] %in% 1:4] <- 1
+df.wide$end6[df.wide[,8] == 8 & df.wide[,9] %in% 1:4] <- 1
+df.wide$end7[df.wide[,9] == 8 & df.wide[,10] %in% 1:4] <- 1
+df.wide$end8[df.wide[,10] == 8 & df.wide[,11] %in% 1:4] <- 1
+df.wide$end9[df.wide[,11] == 8 & df.wide[,12] %in% 1:4] <- 1
+df.wide$end10[df.wide[,12] == 8 & df.wide[,13] %in% 1:4] <- 1
+df.wide$end11[df.wide[,13] == 8 & df.wide[,14] %in% 1:4] <- 1
+df.wide$end12[df.wide[,14] == 8 & df.wide[,15] %in% 1:4] <- 1
+df.wide$end13[df.wide[,15] == 8 & df.wide[,16] %in% 1:4] <- 1
+df.wide$end14[df.wide[,16] == 8 & df.wide[,17] %in% 1:4] <- 1
+df.wide$end15[df.wide[,17] == 8 & df.wide[,18] %in% 1:4] <- 1
+df.wide$end16[df.wide[,18] == 8 & df.wide[,19] %in% 1:4] <- 1
+df.wide$end17[df.wide[,19] == 8 & df.wide[,20] %in% 1:4] <- 1
+df.wide$end18[df.wide[,20] == 8 & df.wide[,21] %in% 1:4] <- 1
+df.wide$end19[df.wide[,21] == 8 & df.wide[,22] %in% 1:4] <- 1
+df.wide$end20[df.wide[,22] == 8 & df.wide[,23] %in% 1:4] <- 1
+df.wide$end21[df.wide[,23] == 8 & df.wide[,24] %in% 1:4] <- 1
+df.wide$end22[df.wide[,24] == 8 & df.wide[,25] %in% 1:4] <- 1
+df.wide$end23[df.wide[,25] == 8 & df.wide[,26] %in% 1:4] <- 1
+df.wide$end24[df.wide[,26] == 8 & df.wide[,27] %in% 1:4] <- 1
+df.wide$end25[df.wide[,27] == 8 & df.wide[,28] %in% 1:4] <- 1
+df.wide$end26[df.wide[,28] == 8 & df.wide[,29] %in% 1:4] <- 1
+df.wide$end27[df.wide[,29] == 8 & df.wide[,30] %in% 1:4] <- 1
+df.wide$end28[df.wide[,30] == 8 & df.wide[,31] %in% 1:4] <- 1
+df.wide$end29[df.wide[,31] == 8 & df.wide[,32] %in% 1:4] <- 1
+df.wide$end30[df.wide[,32] == 8 & df.wide[,33] %in% 1:4] <- 1
+df.wide$end31[df.wide[,33] == 8 & df.wide[,34] %in% 1:4] <- 1
+df.wide$end32[df.wide[,34] == 8 & df.wide[,35] %in% 1:4] <- 1
+df.wide$end33[df.wide[,35] == 8 & df.wide[,36] %in% 1:4] <- 1
+df.wide$end34[df.wide[,36] == 8 & df.wide[,37] %in% 1:4] <- 1
+df.wide$end35[df.wide[,37] == 8 & df.wide[,38] %in% 1:4] <- 1
+df.wide$end36[df.wide[,38] == 8 & df.wide[,39] %in% 1:4] <- 1
+df.wide$end37[df.wide[,39] == 8 & df.wide[,40] %in% 1:4] <- 1
+df.wide$end38[df.wide[,40] == 8 & df.wide[,41] %in% 1:4] <- 1
+df.wide$end39[df.wide[,41] == 8 & df.wide[,42] %in% 1:4] <- 1
+df.wide$end40[df.wide[,42] == 8 & df.wide[,43] %in% 1:4] <- 1
+df.wide$end41[df.wide[,43] == 8 & df.wide[,44] %in% 1:4] <- 1
+df.wide$end42[df.wide[,44] == 8 & df.wide[,45] %in% 1:4] <- 1
+df.wide$end43[df.wide[,45] == 8 & df.wide[,46] %in% 1:4] <- 1
+df.wide$end44[df.wide[,46] == 8 & df.wide[,47] %in% 1:4] <- 1
+df.wide$end45[df.wide[,47] == 8 & df.wide[,48] %in% 1:4] <- 1
+df.wide$end46[df.wide[,48] == 8 & df.wide[,49] %in% 1:4] <- 1
+df.wide$end47[df.wide[,49] == 8 & df.wide[,50] %in% 1:4] <- 1
+
+
+df.long1 <- melt(df.wide, id.vars =c("PER_ID","RB020"), 
+                measure.vars=c("start1","start2","start3","start4","start5","start6","start7","start8","start9","start10","start11","start12","start13","start14","start15","start16","start17","start18","start19","start20","start21","start22","start23","start24","start25","start26","start27","start28","start29","start30","start31","start32","start33","start34","start35","start36","start37","start38","start39","start40","start41","start42","start43","start44","start45","start46","start47"))
+
+names(df.long1) <- c("PER_ID","RB020","var_start","value_start")
+
+df.long1 <- df.long1[!is.na(df.long1$value), ]
+
+df.long2 <- melt(df.wide, id.vars =c("PER_ID","RB020"), 
+                measure.vars=c("end1","end2","end3","end4","end5","end6","end7","end8","end9","end10","end11","end12","end13","end14","end15","end16","end17","end18","end19","end20","end21","end22","end23","end24","end25","end26","end27","end28","end29","end30","end31","end32","end33","end34","end35","end36","end37","end38","end39","end40","end41","end42","end43","end44","end45","end46","end47"))
+
+names(df.long2) <- c("PER_ID","cntry","var_end","value_end")
+
+df.long2 <- df.long2[!is.na(df.long2$value), ]
+
+df.long3 <- merge(df.long1,df.long2,by="PER_ID",all.x=TRUE)
+
+library(stringr)
+library(zoo)
+df.long3$startDate <- as.Date(12753 + (as.numeric(str_replace(df.long3$var_start, "start",
+                                                              "")))*31)
+df.long3$endDate <- as.Date(12753 + (as.numeric(str_replace(df.long3$var_end,
+                                                            "end", "")))*31)
+df.long3$duration <- as.numeric(df.long3$endDate - df.long3$startDate)/31
+#df.long3 <- df.long3[df.long3$duration > 0,]
+
+df.long3$duration[df.long3$duration == -21] <- NA
+
+df.long3$event[df.long3$value_end == 1] <- 1
+df.long3$event[is.na(df.long3$value_end)] <- 0
+
+```
+
+### Length of maternity leave spells
+
+```{rsurvivalplotlegntspells1}
+ggplot(df.long3,
+       aes(x=duration)) +
+  geom_bar() +
+  labs(title="Duration of maternity leave spells",
+       x="duration in months")
+
+
+```
+
+```{rsurvivalplotlegntspells2, fig.height=16}
+ggplot(df.long3,
+       aes(x=duration)) +
+  geom_bar() +
+  labs(title="Duration of maternity leave spells by country",
+       x="duration in months") +
+  facet_wrap(~RB020, ncol=2)
+
+```
+
+
+## Survival curves
+
+
+```{rsurvivalsurvivalcurve1, echo=TRUE}
+library(survival)
+source("survival/ggsurv.R")
+kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
+ggsurv(kmsurvival, main="survival curves from Cox Proportional Hazards model")
+
+
+```
+
+
+```{rsurvivalsurvivalcurve2, echo=TRUE, fig.height=16, fig.width=16}
+library(simPH)
+kmsurvival2 <- survfit(Surv(duration,event) ~ RB020, data = df.long3)
+ggfitStrata(kmsurvival2, byStrata = TRUE, title="Stratified survival curves from Cox Proportional Hazards model")
+
+
+```
+
+
+
+
+
+```{rmiscsurvivalcode, eval=FALSE}
+Load survival
+library(survival)
+Subset data
+bladder1 <- bladder[bladder$enum < 5, ]
+M1 <- coxph(Surv(stop, event) ~ (rx + size + number) * strata(enum) + cluster(id), bladder1)
+M1Fit <- survfit(kmsurvival2)
+
+
+
+df.long3$RB020num <- as.numeric(df.long3$RB020)
+summary(df.long3$RB020num)
+
+
+
+
+ggsurv(kmsurvival2)
+summary(kmsurvival2)
+
+lung.surv <- survfit(Surv(time,status) ~ 1, data = lung)
+ggsurv(lung.surv)
+lung.surv2 <- survfit(Surv(time,status) ~ sex, data = lung)
+(pl2 <- ggsurv(lung.surv2))
+
+plot(kmsurvival, xlab="Time", ylab="Survival Probability")
+
+# Kaplan-Meier non-parametric analysis by group
+kmsurvival1 <- survfit(Surv(df.long3$duration,df.long3$event) ~ df.long3$RB020)
+ggsurv(kmsurvival1)
+plot(kmsurvival1, xlab="Time", ylab="Survival Probability")
+
+# Nelson-Aalen non-parametric analysis
+nasurvival <- survfit(coxph(Surv(df.long3$duration,df.long3$event) ~ 1), type="aalen")
+summary(nasurvival)
+plot(nasurvival, xlab="Time", ylab="Survival Probability")
+
+
+# Cox proportional hazard model - coefficients and hazard rates
+#coxph <- coxph(Surv(df.long3$duration,df.long3$event) ~ X, method="breslow")
+#coxph <- coxph(Surv(time,event) ~ X, method="breslow")
+#summary(coxph)
+
+
+# Exponential, Weibull, and log-logistic parametric model coefficients
+# Opposite signs from Stata results, Weibull results differ; same as SAS
+#exponential <- survreg(Surv(df.long3$duration,df.long3$event) ~ X, dist="exponential")
+#exponential <- survreg(Surv(time,event) ~ X, dist="exponential")
+#summary(exponential)
+
+#weibull <- survreg(Surv(time,event) ~ X, dist="weibull")
+#summary(weibull)
+
+loglogistic <- survreg(Surv(time,event) ~ X, dist="loglogistic")
+summary(loglogistic)
+
+
+s <- coxph(Surv(df.long3$duration, df.long3$event), ~RB020, data = df.long3)
+    type="right",
+    origin=0))
+is.Surv(s)
+```
+
