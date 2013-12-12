@@ -51,28 +51,26 @@ hljs.initHighlightingOnLoad();
 <style type="text/css">
 .title /* Pandoc title header (h1.title) */
     {
-    text-align: center;
-    border-width:0px;
-	font-size: 1.2em;
+    	text-align: center;
+	border-width:0px;
+	font-size: 1.5em;
 	margin: 0 0 5px 0;
-	line-height: 1.3em;
-	letter-spacing: 0.06em;
 	word-spacing: .1em;
-    border-bottom: 0px;
+	border-bottom: 0px;
     }
 
 .author /* Pandoc author(s) header (h2.author) */
     {
     text-align: center;
     font-size: 1.1em;
-	line-height: 1.2em;
+    line-height: 1.2em;
     }
 
 .date /* Pandoc date header (h3.date) */
     {
 	font-family:  Verdana, Arial;
-    text-align: center;
-    font-size: 1.1em;
+	text-align: center;
+	font-size: 1.1em;
 	line-height: 1.2em;
     }
 
@@ -199,17 +197,15 @@ a:active {
 h1 {
 	font-family:  Verdana, Arial;
 	font-size: 1.5em;
-	font-style: bold;
 	padding: 2px;
 	line-height: 1.5em;
-	letter-spacing: 0.06em;
-	word-spacing: .1em;
-    border-bottom: 0.6px solid #555;
+	/*letter-spacing: 0.06em;
+	word-spacing: .1em;*/
+    border-bottom: 0.5px dashed #555;
 }
 h2 {
 	font-family:  Verdana, Arial;
 	font-size: 1.3em;
-	font-style: bold;
 	padding: 2px;
 	line-height: 1.3em;
 	letter-spacing: 0.05em;
@@ -219,7 +215,6 @@ h2 {
 h3 {
 	font-family:  Verdana, Arial;
 	font-size: 1.1em;
-	font-style: bold;
 	padding: 2px;
 	line-height: 1.1em;
 	letter-spacing: 0.05em;
@@ -363,6 +358,8 @@ th:last-child {
 
 <h1 id="toc_0">Merging the original datafiles</h1>
 
+<p>**This is no longer updated as I&#39;m doing the data conversions from .csv to .RData within <code>createRData</code>-project under <code>eusilc/dataOperations</code>.</p>
+
 <ol>
 <li>Reading the original .csv files</li>
 <li>merging the at the
@@ -425,90 +422,6 @@ save(hh_merge, file = &quot;~/workspace/data/eu_silc/2010/longi_rev1/hh_merge.RD
 save(per_merge, file = &quot;~/workspace/data/eu_silc/2010/longi_rev1/per_merge.RData&quot;)
 # save(merge, file=&#39;~/workspace/data/eu_silc/2010/longi_rev1/merge.RData&#39;)
 rm()
-# --------------------------------------------------------------------#
-# --------------------------------------------------------------------#
-# --------------------------------------------------------------------#
-# 2009/longi_rev3/
-# --------------------------------------------------------------------#
-# household register
-hh_reg &lt;- read.csv(&quot;/media/baikal/Asiakirjat/data/eu_silc/2009/longi_rev3/d_file.csv&quot;, 
-    header = TRUE)
-hh_reg$HH_ID_Y &lt;- factor(paste(hh_reg$DB010, hh_reg$DB020, hh_reg$DB030, sep = &quot;_&quot;))
-hh_reg$HH_ID &lt;- factor(paste(hh_reg$DB020, hh_reg$DB030, sep = &quot;_&quot;))
-# household data
-hh_data &lt;- read.csv(&quot;/media/baikal/Asiakirjat/data/eu_silc/2009/longi_rev3/h_file.csv&quot;, 
-    header = TRUE)
-hh_data$HH_ID_Y &lt;- factor(paste(hh_data$HB010, hh_data$HB020, hh_data$HB030, 
-    sep = &quot;_&quot;))
-hh_data$HH_ID &lt;- factor(paste(hh_data$HB020, hh_data$HB030, sep = &quot;_&quot;))
-# personal register
-per_reg &lt;- read.csv(&quot;/media/baikal/Asiakirjat/data/eu_silc/2009/longi_rev3/r_file.csv&quot;, 
-    header = TRUE)
-per_reg$PER_ID_Y &lt;- factor(paste(per_reg$RB010, per_reg$RB020, per_reg$RB030, 
-    sep = &quot;_&quot;))
-per_reg$PER_ID &lt;- factor(paste(per_reg$RB020, per_reg$RB030, sep = &quot;_&quot;))
-# personal data
-per_data &lt;- read.csv(&quot;/media/baikal/Asiakirjat/data/eu_silc/2009/longi_rev3/p_file.csv&quot;, 
-    header = TRUE)
-per_data$PER_ID_Y &lt;- factor(paste(per_data$PB010, per_data$PB020, per_data$PB030, 
-    sep = &quot;_&quot;))
-per_data$PER_ID &lt;- factor(paste(per_data$PB020, per_data$PB030, sep = &quot;_&quot;))
-# --------------------------------------------------------------------#
-# merge data merge household datas
-hh_merge &lt;- join(hh_reg, hh_data, by = &quot;HH_ID_Y&quot;, type = &quot;full&quot;)
-# merge personal datas
-per_merge &lt;- join(per_reg, per_data, by = &quot;PER_ID_Y&quot;, type = &quot;full&quot;)
-# per_merge$HH_ID_Y &lt;-
-# factor(paste(per_merge$RB010,per_merge$RB020,per_merge$PX030, sep=&#39;_&#39;))
-# merge household and personal into single data merge &lt;-
-# join(hh_merge,per_merge,by=&#39;HH_ID_Y&#39;, type=&#39;full&#39;)
-# --------------------------------------------------------------------#
-# Write merged file separate .RData files
-save(hh_merge, file = &quot;~/workspace/data/eu_silc/2009/longi_rev3/hh_merge.RData&quot;)
-save(per_merge, file = &quot;~/workspace/data/eu_silc/2009/longi_rev3/per_merge.RData&quot;)
-# save(merge, file=&#39;~/workspace/data/eu_silc/2009/longi_rev3/merge.RData&#39;)
-rm()
-# --------------------------------------------------------------------#
-# --------------------------------------------------------------------#
-# 2008/longi_rev3/
-# --------------------------------------------------------------------#
-# household register
-hh_reg &lt;- read.csv(&quot;/media/baikal/Asiakirjat/data/eu_silc/2008/longi_rev3/d_file.csv&quot;, 
-    header = TRUE)
-hh_reg$HH_ID_Y &lt;- factor(paste(hh_reg$DB010, hh_reg$DB020, hh_reg$DB030, sep = &quot;_&quot;))
-hh_reg$HH_ID &lt;- factor(paste(hh_reg$DB020, hh_reg$DB030, sep = &quot;_&quot;))
-# household data
-hh_data &lt;- read.csv(&quot;/media/baikal/Asiakirjat/data/eu_silc/2008/longi_rev3/h_file.csv&quot;, 
-    header = TRUE)
-hh_data$HH_ID_Y &lt;- factor(paste(hh_data$HB010, hh_data$HB020, hh_data$HB030, 
-    sep = &quot;_&quot;))
-hh_data$HH_ID &lt;- factor(paste(hh_data$HB020, hh_data$HB030, sep = &quot;_&quot;))
-# personal register
-per_reg &lt;- read.csv(&quot;/media/baikal/Asiakirjat/data/eu_silc/2008/longi_rev3/r_file.csv&quot;, 
-    header = TRUE)
-per_reg$PER_ID_Y &lt;- factor(paste(per_reg$RB010, per_reg$RB020, per_reg$RB030, 
-    sep = &quot;_&quot;))
-per_reg$PER_ID &lt;- factor(paste(per_reg$RB020, per_reg$RB030, sep = &quot;_&quot;))
-# personal data
-per_data &lt;- read.csv(&quot;/media/baikal/Asiakirjat/data/eu_silc/2008/longi_rev3/p_file.csv&quot;, 
-    header = TRUE)
-per_data$PER_ID_Y &lt;- factor(paste(per_data$PB010, per_data$PB020, per_data$PB030, 
-    sep = &quot;_&quot;))
-per_data$PER_ID &lt;- factor(paste(per_data$PB020, per_data$PB030, sep = &quot;_&quot;))
-# --------------------------------------------------------------------#
-# merge data merge household datas
-hh_merge &lt;- join(hh_reg, hh_data, by = &quot;HH_ID_Y&quot;, type = &quot;full&quot;)
-# merge personal datas
-per_merge &lt;- join(per_reg, per_data, by = &quot;PER_ID_Y&quot;, type = &quot;full&quot;)
-# per_merge$HH_ID_Y &lt;-
-# factor(paste(per_merge$RB010,per_merge$RB020,per_merge$PX030, sep=&#39;_&#39;))
-# merge household and personal into single data merge &lt;-
-# join(hh_merge,per_merge,by=&#39;HH_ID_Y&#39;, type=&#39;full&#39;)
-# --------------------------------------------------------------------#
-# Write merged file separate .RData files
-save(hh_merge, file = &quot;~/workspace/data/eu_silc/2008/longi_rev3/hh_merge.RData&quot;)
-save(per_merge, file = &quot;~/workspace/data/eu_silc/2008/longi_rev3/per_merge.RData&quot;)
-# save(merge, file=&#39;~/workspace/data/eu_silc/2008/longi_rev3/merge.RData&#39;)
 
 </code></pre>
 

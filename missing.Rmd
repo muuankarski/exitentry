@@ -18,8 +18,10 @@ load("~/workspace/data/eu_silc/2008/longi_rev3/per_merge.RData")
 per_merge08 <- per_merge
 load("~/workspace/data/eu_silc/2009/longi_rev3/per_merge.RData")
 per_merge09 <- per_merge
-load("~/workspace/data/eu_silc/2010/longi_rev1/per_merge.RData")
+load("~/workspace/data/eu_silc/2010/longi_rev2/per_merge.RData")
 per_merge10 <- per_merge
+load("~/workspace/data/eu_silc/2011/longi_rev0/per_merge.RData")
+per_merge11 <- per_merge
 rm(per_merge)
 ```
 
@@ -38,10 +40,12 @@ library(VIM)
 pl030_08 <- per_merge08[, c("RB020", "PL030")]
 pl030_09 <- per_merge09[, c("RB020", "PL030")]
 pl030_10 <- per_merge10[, c("RB020", "PL030")]
+pl030_11 <- per_merge11[, c("RB020", "PL030")]
 
 barMiss(pl030_08, only.miss = FALSE)
 barMiss(pl030_09, only.miss = FALSE)
 barMiss(pl030_10, only.miss = FALSE)
+barMiss(pl030_11, only.miss = FALSE)
 
 ```
 
@@ -61,10 +65,12 @@ library(VIM)
 pl031_08 <- per_merge08[, c("RB020", "PL031")]
 pl031_09 <- per_merge09[, c("RB020", "PL031")]
 pl031_10 <- per_merge10[, c("RB020", "PL031")]
+pl031_11 <- per_merge11[, c("RB020", "PL031")]
 
 barMiss(pl031_08, only.miss = FALSE)
 barMiss(pl031_09, only.miss = FALSE)
 barMiss(pl031_10, only.miss = FALSE)
+barMiss(pl031_11, only.miss = FALSE)
 
 ```
 
@@ -84,10 +90,12 @@ library(VIM)
 RB210_08 <- per_merge08[, c("RB020", "RB210")]
 RB210_09 <- per_merge09[, c("RB020", "RB210")]
 RB210_10 <- per_merge10[, c("RB020", "RB210")]
+RB210_11 <- per_merge11[, c("RB020", "RB210")]
 
 barMiss(RB210_08, only.miss = FALSE)
 barMiss(RB210_09, only.miss = FALSE)
 barMiss(RB210_10, only.miss = FALSE)
+barMiss(RB210_11, only.miss = FALSE)
 ```
 
 **notes**
@@ -107,10 +115,12 @@ library(VIM)
 RB170_08 <- per_merge08[, c("RB020", "RB170")]
 RB170_09 <- per_merge09[, c("RB020", "RB170")]
 RB170_10 <- per_merge10[, c("RB020", "RB170")]
+RB170_11 <- per_merge11[, c("RB020", "RB170")]
 
 barMiss(RB170_08, only.miss = FALSE)
 barMiss(RB170_09, only.miss = FALSE)
 barMiss(RB170_10, only.miss = FALSE)
+barMiss(RB170_11, only.miss = FALSE)
 ```
 
 **notes**
@@ -129,10 +139,12 @@ library(VIM)
 PY140G_08 <- per_merge08[, c("RB020", "PY140G")]
 PY140G_09 <- per_merge09[, c("RB020", "PY140G")]
 PY140G_10 <- per_merge10[, c("RB020", "PY140G")]
+PY140G_11 <- per_merge11[, c("RB020", "PY140G")]
 
 barMiss(PY140G_08, only.miss = FALSE)
 barMiss(PY140G_09, only.miss = FALSE)
 barMiss(PY140G_10, only.miss = FALSE)
+barMiss(PY140G_11, only.miss = FALSE)
 
 ```
 
@@ -149,10 +161,12 @@ library(VIM)
 PY010N_08 <- per_merge08[, c("RB020", "PY010N")]
 PY010N_09 <- per_merge09[, c("RB020", "PY010N")]
 PY010N_10 <- per_merge10[, c("RB020", "PY010N")]
+PY010N_11 <- per_merge11[, c("RB020", "PY010N")]
 
 barMiss(PY010N_08, only.miss = FALSE)
 barMiss(PY010N_09, only.miss = FALSE)
 barMiss(PY010N_10, only.miss = FALSE)
+barMiss(PY010N_11, only.miss = FALSE)
 
 ```
 
@@ -166,10 +180,12 @@ library(VIM)
 PY010G_08 <- per_merge08[, c("RB020", "PY010G")]
 PY010G_09 <- per_merge09[, c("RB020", "PY010G")]
 PY010G_10 <- per_merge10[, c("RB020", "PY010G")]
+PY010G_11 <- per_merge11[, c("RB020", "PY010G")]
 
 barMiss(PY010G_08, only.miss = FALSE)
 barMiss(PY010G_09, only.miss = FALSE)
 barMiss(PY010G_10, only.miss = FALSE)
+barMiss(PY010G_11, only.miss = FALSE)
 
 ```
 
@@ -185,10 +201,12 @@ library(VIM)
 PL210A_08 <- per_merge08[, c("RB020", "PL210A")]
 PL210A_09 <- per_merge09[, c("RB020", "PL210A")]
 PL210A_10 <- per_merge10[, c("RB020", "PL210A")]
+PL210A_11 <- per_merge11[, c("RB020", "PL210A")]
 
 barMiss(PL210A_08, only.miss = FALSE)
 barMiss(PL210A_09, only.miss = FALSE)
 barMiss(PL210A_10, only.miss = FALSE)
+barMiss(PL210A_11, only.miss = FALSE)
 
 ```
 
@@ -203,10 +221,12 @@ library(VIM)
 PL210D_08 <- per_merge08[, c("RB020", "PL210D")]
 PL210D_09 <- per_merge09[, c("RB020", "PL210D")]
 PL210D_10 <- per_merge10[, c("RB020", "PL210D")]
+PL210D_11 <- per_merge11[, c("RB020", "PL210D")]
 
 barMiss(PL210D_08, only.miss = FALSE)
 barMiss(PL210D_09, only.miss = FALSE)
 barMiss(PL210D_10, only.miss = FALSE)
+barMiss(PL210D_11, only.miss = FALSE)
 
 ```
 
@@ -222,9 +242,11 @@ library(VIM)
 PL210L_08 <- per_merge08[, c("RB020", "PL210L")]
 PL210L_09 <- per_merge09[, c("RB020", "PL210L")]
 PL210L_10 <- per_merge10[, c("RB020", "PL210L")]
+PL210L_11 <- per_merge11[, c("RB020", "PL210L")]
 
 barMiss(PL210L_08, only.miss = FALSE)
 barMiss(PL210L_09, only.miss = FALSE)
 barMiss(PL210L_10, only.miss = FALSE)
+barMiss(PL210L_11, only.miss = FALSE)
 
 ```

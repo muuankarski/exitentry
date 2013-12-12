@@ -58,13 +58,17 @@ dat2009.l <- melt(dat2009, id.vars = c("RB010","RB020","PER_ID"))
 # 2010
 dat2010 <- datEnterBirth2[datEnterBirth2$RB010 == 2010,varlist]
 dat2010.l <- melt(dat2010, id.vars = c("RB010","RB020","PER_ID"))
+# 2011
+dat2011 <- datEnterBirth2[datEnterBirth2$RB010 == 2011,varlist]
+dat2011.l <- melt(dat2011, id.vars = c("RB010","RB020","PER_ID"))
 
 dat <- rbind(dat2005.l,
              dat2006.l,
              dat2007.l,
              dat2008.l,
              dat2009.l,
-             dat2010.l)
+             dat2010.l,
+             dat2011.l)
 
 dat$time[dat$variable == "PL210A"] <- "01-01"
 dat$time[dat$variable == "PL210B"] <- "02-01"

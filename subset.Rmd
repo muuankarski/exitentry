@@ -16,7 +16,7 @@ This document describes data on those three events we are interested in, which a
 
 Tasks performed:
 
-1. merging the original register and data files both at the household and personal level from year 2008, 2009 and 2010 (each containing data from that year and three years before)
+1. merging the original register and data files both at the household and personal level from year 2008, 2009, 2010 and 2011 (each containing data from that year and three years before)
 2. subsetting same variables from each datasets 
     - same set of variables from personal08, personal09 and personal10 datas
     - same set of variables from household08, household09 and household10 datas
@@ -83,8 +83,10 @@ load("~/workspace/data/eu_silc/2008/longi_rev3/per_merge.RData")
 per_merge08 <- per_merge
 load("~/workspace/data/eu_silc/2009/longi_rev3/per_merge.RData")
 per_merge09 <- per_merge
-load("~/workspace/data/eu_silc/2010/longi_rev1/per_merge.RData")
+load("~/workspace/data/eu_silc/2010/longi_rev2/per_merge.RData")
 per_merge10 <- per_merge
+load("~/workspace/data/eu_silc/2011/longi_rev0/per_merge.RData")
+per_merge11 <- per_merge
 rm(per_merge)
 
 # Case Greece
@@ -130,6 +132,16 @@ per_merge10$PL030rec[per_merge10$PL030 == 6] <- 8
 per_merge10$PL030rec[per_merge10$PL030 == 7] <- 9
 per_merge10$PL030rec[per_merge10$PL030 == 8] <- 10
 per_merge10$PL030rec[per_merge10$PL030 == 9] <- 11
+# 2011
+per_merge11$PL030rec[per_merge11$PL030 == 1] <- 1
+per_merge11$PL030rec[per_merge11$PL030 == 2] <- 2
+per_merge11$PL030rec[per_merge11$PL030 == 3] <- 5
+per_merge11$PL030rec[per_merge11$PL030 == 4] <- 6
+per_merge11$PL030rec[per_merge11$PL030 == 5] <- 7
+per_merge11$PL030rec[per_merge11$PL030 == 6] <- 8
+per_merge11$PL030rec[per_merge11$PL030 == 7] <- 9
+per_merge11$PL030rec[per_merge11$PL030 == 8] <- 10
+per_merge11$PL030rec[per_merge11$PL030 == 9] <- 11
 
 # then we have to fill in missing values in PL031 with
 # values in PL030rec
@@ -139,7 +151,7 @@ per_merge08$PL031 <- NA
 per_merge08$econStatus <- ifelse(is.na(per_merge08$PL031),  per_merge08$PL030rec, per_merge08$PL031)
 per_merge09$econStatus <- ifelse(is.na(per_merge09$PL031),  per_merge09$PL030rec, per_merge09$PL031)
 per_merge10$econStatus <- ifelse(is.na(per_merge10$PL031),  per_merge10$PL030rec, per_merge10$PL031)
-
+per_merge11$econStatus <- ifelse(is.na(per_merge11$PL031),  per_merge11$PL030rec, per_merge11$PL031)
 
 # list of variables to be analysed
 var.list <- c("PER_ID_Y", # unique year, cntry, personal ID
@@ -182,7 +194,8 @@ var.list <- c("PER_ID_Y", # unique year, cntry, personal ID
 
 dat <- rbind(per_merge08[,var.list],
              per_merge09[,var.list],
-             per_merge10[,var.list])
+             per_merge10[,var.list],
+             per_merge11[,var.list])
 
 # merge the panels datas
 dat$dup <- duplicated(dat$PER_ID_Y)
@@ -196,8 +209,10 @@ load("~/workspace/data/eu_silc/2008/longi_rev3/hh_merge.RData")
 hh_merge08 <- hh_merge
 load("~/workspace/data/eu_silc/2009/longi_rev3/hh_merge.RData")
 hh_merge09 <- hh_merge
-load("~/workspace/data/eu_silc/2010/longi_rev1/hh_merge.RData")
+load("~/workspace/data/eu_silc/2010/longi_rev2/hh_merge.RData")
 hh_merge10 <- hh_merge
+load("~/workspace/data/eu_silc/2011/longi_rev0/hh_merge.RData")
+hh_merge11 <- hh_merge
 rm(hh_merge)
 
 
@@ -263,13 +278,11 @@ The following plots are provided from all the events
 load("data/dat.per.RData")
 
 library(reshape2)
+dat.per$RB010X <- factor(paste("x",dat.per$RB010,sep=""))
 df.wide <- dcast(dat.per, PER_ID + RB020 + 
-                   RB030 + HX100 ~ RB010, 
+                   RB030 + HX100 ~ RB010X, 
                  value.var = "econStatus")
 
-names(df.wide) <- c("PER_ID","RB020","RB030","HX100",
-                    "x2005","x2006","x2007",
-                    "x2008","x2009","x2010")
 # recode the event from student(6) to emplopyment (1:4)
 df.wide$school06[df.wide$x2005 == 6 & df.wide$x2006 %in% 1:4] <- 1
 df.wide$school06[is.na(df.wide$school06)] <- 0
@@ -281,12 +294,14 @@ df.wide$school09[df.wide$x2008 == 6 & df.wide$x2009 %in% 1:4] <- 1
 df.wide$school09[is.na(df.wide$school09)] <- 0
 df.wide$school10[df.wide$x2009 == 6 & df.wide$x2010 %in% 1:4] <- 1
 df.wide$school10[is.na(df.wide$school10)] <- 0
+df.wide$school11[df.wide$x2010 == 6 & df.wide$x2011 %in% 1:4] <- 1
+df.wide$school11[is.na(df.wide$school11)] <- 0
 
 df.long <- melt(df.wide, id.vars =c("PER_ID",
                                     "RB020","RB030","HX100"), 
                 measure.vars=c("school06","school07",
                                "school08","school09",
-                               "school10"))
+                               "school10","school11"))
 names(df.long) <- c("PER_ID","RB020","RB030","HX100",
                     "year","schoolExit")
 
@@ -296,6 +311,7 @@ df.long$year[df.long$year == "school07"] <- "2007"
 df.long$year[df.long$year == "school08"] <- "2008"
 df.long$year[df.long$year == "school09"] <- "2009"
 df.long$year[df.long$year == "school10"] <- "2010"
+df.long$year[df.long$year == "school11"] <- "2011"
 
 df.long$year <- factor(df.long$year)
 df.long$year <- as.numeric(levels(df.long$year))[df.long$year]
@@ -309,7 +325,7 @@ datExitStudies <- merge(df.long2[,c("RB020","RB030","year","schoolExit")],dat.pe
                   by=c("RB020","RB030"), all.x=TRUE)
 
 datExitStudies$time <- datExitStudies$RB010 - datExitStudies$year
-save(datExitStudies, file="datExitStudies.RData")
+save(datExitStudies, file="data/datExitStudies.RData")
 ```
 
 
@@ -349,13 +365,15 @@ ggplot(data=datTe,
 
 
 ```{rsubsetfiglabour2}
-regime <- read.csv("http://markuskainu.fi/material/data/eu/eusilc_suomi.csv")
+library(RCurl)
+GHurl <- getURL("https://raw.github.com/muuankarski/data/master/europe/eu_cntry.csv")
+regime <- read.csv(text = GHurl)
 manual_fill <- scale_fill_manual(values=c("#999999", "#E69F00", 
                                           "#56B4E9", "#009E73",
                                           "#D55E00", "#CC79A7",
                                           "#0072B2","#F0E442"))
 
-datTe <- merge(datTe,regime,by="RB020")
+datTe <- merge(datTe,regime,by.x="RB020",by.y="NUTS_ID")
 library(ggplot2)
 ggplot(data=datTe, 
        aes(x=factor(reorder(RB020, RX010, median, na.rm=TRUE)),
@@ -478,7 +496,7 @@ ggplot(data=datTm,
 
 ```{rsubsetfigmaternity2}
 library(ggplot2)
-datTm <- merge(datTm,regime,by="RB020")
+datTm <- merge(datTm,regime,by.x="RB020",by.y="NUTS_ID")
 ggplot(data=datTm, 
        aes(x=factor(reorder(RB020, RX010, median, na.rm=TRUE)),
            y=RX010,
@@ -525,13 +543,10 @@ ggplot(datEnterBirth2, aes(x=factor(time),y=PY010G,group=PER_ID)) +
 ```{rsubsetrecodeexitpension, eval=FALSE}
 library(reshape2)
 load("data/dat.per.RData")
+dat.per$RB010X <- factor(paste("x",dat.per$RB010,sep=""))
 df.wide <- dcast(dat.per, PER_ID + RB020 + RB030 + 
-                   HX100 + HX090 + PY010G ~ RB010, 
+                   HX100 + HX090 + PY010G ~ RB010X, 
                  value.var = "econStatus")
-
-names(df.wide) <- c("PER_ID","RB020","RB030","HX100","HX090",
-                    "PY010G","x2005","x2006","x2007",
-                    "x2008","x2009","x2010")
 
 df.wide$pension06[df.wide$x2005 != 7 & df.wide$x2006 == 7] <- 1
 df.wide$pension06[is.na(df.wide$pension06)] <- 0
@@ -543,12 +558,14 @@ df.wide$pension09[df.wide$x2008 != 7 & df.wide$x2009 == 7] <- 1
 df.wide$pension09[is.na(df.wide$pension09)] <- 0
 df.wide$pension10[df.wide$x2009 != 7 & df.wide$x2010 == 7] <- 1
 df.wide$pension10[is.na(df.wide$pension10)] <- 0
+df.wide$pension11[df.wide$x2010 != 7 & df.wide$x2011 == 7] <- 1
+df.wide$pension11[is.na(df.wide$pension11)] <- 0
 
 df.long <- melt(df.wide, id.vars =c("PER_ID","RB020","RB030",
                                     "HX100","HX090","PY010G"),
                 measure.vars=c("pension06","pension07",
                                "pension08","pension09",
-                               "pension10"))
+                               "pension10","pension11"))
 names(df.long) <- c("PER_ID","RB020","RB030","HX100","HX090","PY010G_Z",
                     "year","pensionEnter")
 
@@ -559,6 +576,7 @@ df.long$year[df.long$year == "pension07"] <- "2007"
 df.long$year[df.long$year == "pension08"] <- "2008"
 df.long$year[df.long$year == "pension09"] <- "2009"
 df.long$year[df.long$year == "pension10"] <- "2010"
+df.long$year[df.long$year == "pension11"] <- "2011"
 
 df.long$year <- factor(df.long$year)
 df.long$year <- as.numeric(levels(df.long$year))[df.long$year]
@@ -609,7 +627,7 @@ ggplot(data=datTp,
 
 ```{rsubsetfigpension2}
 library(ggplot2)
-datTp <- merge(datTp,regime,by="RB020")
+datTp <- merge(datTp,regime,by.x="RB020",by.y="NUTS_ID")
 ggplot(data=datTp, 
        aes(x=factor(reorder(RB020, RX010, median, na.rm=TRUE)),
            y=RX010,
