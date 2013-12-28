@@ -170,7 +170,7 @@ ggplot(tbl, aes(x=Var2,y=Freq,fill=value)) +
 - Data is perfect from some countries and useless in others
 - From the latest years it is basically missing
 
-So, I will demonstrate the survival analysis by using data from years 2005 - 2008 and from countries `c("AT","BE","BG","CY","CZ","EE","EL","ES","FR","HU","IE","IT","LT","LU","LV","PL","PT","SI","SK","UK","MT")`. We are excluding `"DK","FI","IS","NL","NO","SE"`.
+Previously I subsetted certain countries (excluding nordic for instance), but now I have included all the countries AND all the years.
 
 ## creating a survival data.frame
 
@@ -182,16 +182,13 @@ So, I will demonstrate the survival analysis by using data from years 2005 - 200
 
 ### Filtering countries & years with missing data
 
-*So, I will demonstrate the survival analysis by using data from years 2005 - 2008 and from countries `c("AT","BE","BG","CY","CZ","EE","EL","ES","FR","HU","IE","IT","LT","LU","LV","PL","PT","SI","SK","UK","MT")`.*
-
 And get this data.
 
 ```{rsurvivalfiltermissindata1}
 
-clist <- c("AT","BE","BG","CY","CZ","EE","EL","ES","FR","HU","IE","IT","LT","LU","LV","PL","PT","SI","SK","UK","MT")
-
-datS <- dat[dat$RB020 %in% clist,]
-datS <- datS[datS$RB010 <= 2008,]
+#datS <- dat[dat$RB020 %in% clist,]
+datS <- dat
+#datS <- datS[datS$RB010 <= 2008,]
 
 datS$RB020 <- factor(datS$RB020)
 
@@ -297,6 +294,44 @@ df.wide$start44[df.wide[,46] == 0 & df.wide[,47] != 0] <- 1
 df.wide$start45[df.wide[,47] == 0 & df.wide[,48] != 0] <- 1
 df.wide$start46[df.wide[,48] == 0 & df.wide[,49] != 0] <- 1
 df.wide$start47[df.wide[,49] == 0 & df.wide[,50] != 0] <- 1
+df.wide$start48[df.wide[,50] == 0 & df.wide[,51] != 0] <- 1
+df.wide$start49[df.wide[,51] == 0 & df.wide[,52] != 0] <- 1
+df.wide$start50[df.wide[,52] == 0 & df.wide[,53] != 0] <- 1
+df.wide$start51[df.wide[,53] == 0 & df.wide[,54] != 0] <- 1
+df.wide$start52[df.wide[,54] == 0 & df.wide[,55] != 0] <- 1
+df.wide$start53[df.wide[,55] == 0 & df.wide[,56] != 0] <- 1
+df.wide$start54[df.wide[,56] == 0 & df.wide[,57] != 0] <- 1
+df.wide$start55[df.wide[,57] == 0 & df.wide[,58] != 0] <- 1
+df.wide$start56[df.wide[,58] == 0 & df.wide[,59] != 0] <- 1
+df.wide$start57[df.wide[,59] == 0 & df.wide[,60] != 0] <- 1
+df.wide$start58[df.wide[,60] == 0 & df.wide[,61] != 0] <- 1
+df.wide$start59[df.wide[,61] == 0 & df.wide[,62] != 0] <- 1
+df.wide$start60[df.wide[,62] == 0 & df.wide[,63] != 0] <- 1
+df.wide$start61[df.wide[,63] == 0 & df.wide[,64] != 0] <- 1
+df.wide$start62[df.wide[,64] == 0 & df.wide[,65] != 0] <- 1
+df.wide$start63[df.wide[,65] == 0 & df.wide[,66] != 0] <- 1
+df.wide$start64[df.wide[,66] == 0 & df.wide[,67] != 0] <- 1
+df.wide$start65[df.wide[,67] == 0 & df.wide[,68] != 0] <- 1
+df.wide$start66[df.wide[,68] == 0 & df.wide[,69] != 0] <- 1
+df.wide$start67[df.wide[,69] == 0 & df.wide[,70] != 0] <- 1
+df.wide$start68[df.wide[,70] == 0 & df.wide[,71] != 0] <- 1
+df.wide$start69[df.wide[,71] == 0 & df.wide[,72] != 0] <- 1
+df.wide$start70[df.wide[,72] == 0 & df.wide[,73] != 0] <- 1
+df.wide$start71[df.wide[,73] == 0 & df.wide[,74] != 0] <- 1
+df.wide$start72[df.wide[,74] == 0 & df.wide[,75] != 0] <- 1
+df.wide$start73[df.wide[,75] == 0 & df.wide[,76] != 0] <- 1
+df.wide$start74[df.wide[,76] == 0 & df.wide[,77] != 0] <- 1
+df.wide$start75[df.wide[,77] == 0 & df.wide[,78] != 0] <- 1
+df.wide$start76[df.wide[,78] == 0 & df.wide[,79] != 0] <- 1
+df.wide$start77[df.wide[,79] == 0 & df.wide[,80] != 0] <- 1
+df.wide$start78[df.wide[,80] == 0 & df.wide[,81] != 0] <- 1
+df.wide$start79[df.wide[,81] == 0 & df.wide[,82] != 0] <- 1
+df.wide$start80[df.wide[,82] == 0 & df.wide[,83] != 0] <- 1
+df.wide$start81[df.wide[,83] == 0 & df.wide[,84] != 0] <- 1
+df.wide$start82[df.wide[,84] == 0 & df.wide[,85] != 0] <- 1
+df.wide$start83[df.wide[,85] == 0 & df.wide[,86] != 0] <- 1
+
+
 # end date
 df.wide$end1[df.wide[,3] == 8 & df.wide[,4] %in% 1:4] <- 1
 df.wide$end2[df.wide[,4] == 8 & df.wide[,5] %in% 1:4] <- 1
@@ -345,17 +380,54 @@ df.wide$end44[df.wide[,46] == 8 & df.wide[,47] %in% 1:4] <- 1
 df.wide$end45[df.wide[,47] == 8 & df.wide[,48] %in% 1:4] <- 1
 df.wide$end46[df.wide[,48] == 8 & df.wide[,49] %in% 1:4] <- 1
 df.wide$end47[df.wide[,49] == 8 & df.wide[,50] %in% 1:4] <- 1
+df.wide$end48[df.wide[,50] == 8 & df.wide[,51] %in% 1:4] <- 1
+df.wide$end49[df.wide[,51] == 8 & df.wide[,52] %in% 1:4] <- 1
+df.wide$end50[df.wide[,52] == 8 & df.wide[,53] %in% 1:4] <- 1
+df.wide$end51[df.wide[,53] == 8 & df.wide[,54] %in% 1:4] <- 1
+df.wide$end52[df.wide[,54] == 8 & df.wide[,55] %in% 1:4] <- 1
+df.wide$end53[df.wide[,55] == 8 & df.wide[,56] %in% 1:4] <- 1
+df.wide$end54[df.wide[,56] == 8 & df.wide[,57] %in% 1:4] <- 1
+df.wide$end55[df.wide[,57] == 8 & df.wide[,58] %in% 1:4] <- 1
+df.wide$end56[df.wide[,58] == 8 & df.wide[,59] %in% 1:4] <- 1
+df.wide$end57[df.wide[,59] == 8 & df.wide[,60] %in% 1:4] <- 1
+df.wide$end58[df.wide[,60] == 8 & df.wide[,61] %in% 1:4] <- 1
+df.wide$end59[df.wide[,61] == 8 & df.wide[,62] %in% 1:4] <- 1
+df.wide$end60[df.wide[,62] == 8 & df.wide[,63] %in% 1:4] <- 1
+df.wide$end61[df.wide[,63] == 8 & df.wide[,64] %in% 1:4] <- 1
+df.wide$end62[df.wide[,64] == 8 & df.wide[,65] %in% 1:4] <- 1
+df.wide$end63[df.wide[,65] == 8 & df.wide[,66] %in% 1:4] <- 1
+df.wide$end64[df.wide[,66] == 8 & df.wide[,67] %in% 1:4] <- 1
+df.wide$end65[df.wide[,67] == 8 & df.wide[,68] %in% 1:4] <- 1
+df.wide$end66[df.wide[,68] == 8 & df.wide[,69] %in% 1:4] <- 1
+df.wide$end67[df.wide[,69] == 8 & df.wide[,70] %in% 1:4] <- 1
+df.wide$end68[df.wide[,70] == 8 & df.wide[,71] %in% 1:4] <- 1
+df.wide$end69[df.wide[,71] == 8 & df.wide[,72] %in% 1:4] <- 1
+df.wide$end70[df.wide[,72] == 8 & df.wide[,73] %in% 1:4] <- 1
+df.wide$end71[df.wide[,73] == 8 & df.wide[,74] %in% 1:4] <- 1
+df.wide$end72[df.wide[,74] == 8 & df.wide[,75] %in% 1:4] <- 1
+df.wide$end73[df.wide[,75] == 8 & df.wide[,76] %in% 1:4] <- 1
+df.wide$end74[df.wide[,76] == 8 & df.wide[,77] %in% 1:4] <- 1
+df.wide$end75[df.wide[,77] == 8 & df.wide[,78] %in% 1:4] <- 1
+df.wide$end76[df.wide[,78] == 8 & df.wide[,79] %in% 1:4] <- 1
+df.wide$end77[df.wide[,79] == 8 & df.wide[,80] %in% 1:4] <- 1
+df.wide$end78[df.wide[,80] == 8 & df.wide[,81] %in% 1:4] <- 1
+df.wide$end79[df.wide[,81] == 8 & df.wide[,82] %in% 1:4] <- 1
+df.wide$end80[df.wide[,82] == 8 & df.wide[,83] %in% 1:4] <- 1
+df.wide$end81[df.wide[,83] == 8 & df.wide[,84] %in% 1:4] <- 1
+df.wide$end82[df.wide[,84] == 8 & df.wide[,85] %in% 1:4] <- 1
+df.wide$end83[df.wide[,85] == 8 & df.wide[,86] %in% 1:4] <- 1
+
 
 
 df.long1 <- melt(df.wide, id.vars =c("PER_ID","RB020"), 
-                measure.vars=c("start1","start2","start3","start4","start5","start6","start7","start8","start9","start10","start11","start12","start13","start14","start15","start16","start17","start18","start19","start20","start21","start22","start23","start24","start25","start26","start27","start28","start29","start30","start31","start32","start33","start34","start35","start36","start37","start38","start39","start40","start41","start42","start43","start44","start45","start46","start47"))
+                measure.vars=c("start1","start2","start3","start4","start5","start6","start7","start8","start9","start10","start11","start12","start13","start14","start15","start16","start17","start18","start19","start20","start21","start22","start23","start24","start25","start26","start27","start28","start29","start30","start31","start32","start33","start34","start35","start36","start37","start38","start39","start40","start41","start42","start43","start44","start45","start46","start47","start48","start49","start50","start51","start52","start53","start54","start55","start56","start57","start58","start59","start60","start61","start62","start63","start64","start65","start66","start67","start68","start69","start70","start71","start72","start73","start74","start75","start76","start77","start78","start79","start80","start81","start82","start83"))
 
 names(df.long1) <- c("PER_ID","RB020","var_start","value_start")
 
 df.long1 <- df.long1[!is.na(df.long1$value), ]
 
 df.long2 <- melt(df.wide, id.vars =c("PER_ID","RB020"), 
-                measure.vars=c("end1","end2","end3","end4","end5","end6","end7","end8","end9","end10","end11","end12","end13","end14","end15","end16","end17","end18","end19","end20","end21","end22","end23","end24","end25","end26","end27","end28","end29","end30","end31","end32","end33","end34","end35","end36","end37","end38","end39","end40","end41","end42","end43","end44","end45","end46","end47"))
+                measure.vars=c("end1","end2","end3","end4","end5","end6","end7","end8","end9","end10","end11","end12","end13","end14","end15","end16","end17","end18","end19","end20","end21","end22","end23","end24","end25","end26","end27","end28","end29","end30","end31","end32","end33","end34","end35","end36","end37","end38","end39","end40","end41","end42","end43","end44","end45","end46","end47","end48","end49","end50","end51","end52","end53","end54","end55","end56","end57","end58","end59","end60","end61","end62","end63","end64","end65","end66","end67","end68","end69","end70","end71","end72","end73","end74","end75","end76","end77","end78","end79","end80","end81","end82","end83"))
 
 names(df.long2) <- c("PER_ID","cntry","var_end","value_end")
 
@@ -372,7 +444,11 @@ df.long3$endDate <- as.Date(12753 + (as.numeric(str_replace(df.long3$var_end,
 df.long3$duration <- as.numeric(df.long3$endDate - df.long3$startDate)/31
 #df.long3 <- df.long3[df.long3$duration > 0,]
 
+df.long3$duration[df.long3$duration == -33] <- NA
+df.long3$duration[df.long3$duration == -31] <- NA
+df.long3$duration[df.long3$duration == -24] <- NA
 df.long3$duration[df.long3$duration == -21] <- NA
+df.long3$duration[df.long3$duration == -14] <- NA
 
 df.long3$event[df.long3$value_end == 1] <- 1
 df.long3$event[is.na(df.long3$value_end)] <- 0
@@ -388,7 +464,6 @@ ggplot(df.long3,
   labs(title="Duration of maternity leave spells",
        x="duration in months")
 
-
 ```
 
 ```{rsurvivalplotlegntspells2, fig.height=16}
@@ -398,6 +473,20 @@ ggplot(df.long3,
   labs(title="Duration of maternity leave spells by country",
        x="duration in months") +
   facet_wrap(~RB020, ncol=2)
+
+```
+
+### Number of mothers on maternity leave by events by country
+
+The table below lists numbers of mothers on maternity leave in each country (`sum` column) that. Column `notHappened` has number of mother that did not exit into work, but were sencored before event took place. `happened` column has the crucial number, that is the number of mother that exited to employment.
+
+```{rsurvivalTable1, results='asis'}
+tbl <- data.frame(table(df.long3$RB020,df.long3$event))
+tblW <- dcast(tbl, Var1 ~ Var2, value.var = "Freq")
+tblW$sum <- rowSums(tblW[,2:3])
+names(tblW) <- c("cntry","notHappened","happened","sum")
+library(xtable)
+print.xtable(xtable(tblW), type="html")
 
 ```
 
@@ -411,7 +500,6 @@ source("survival/ggsurv.R")
 kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
 ggsurv(kmsurvival, main="survival curves from Cox Proportional Hazards model")
 
-
 ```
 
 
@@ -419,8 +507,6 @@ ggsurv(kmsurvival, main="survival curves from Cox Proportional Hazards model")
 library(simPH)
 kmsurvival2 <- survfit(Surv(duration,event) ~ RB020, data = df.long3)
 ggfitStrata(kmsurvival2, byStrata = TRUE, title="Stratified survival curves from Cox Proportional Hazards model")
-
-
 ```
 
 

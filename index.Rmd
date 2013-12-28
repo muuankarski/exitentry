@@ -34,6 +34,16 @@
 | [Survival curves of mothers returning work](ds_survival_mothers.html) | [source code](ds_survival_mothers.Rmd) |
 
 
+## Analysis for the paper
+
+| html-page | source |
+| --------- | ------ |
+| []() | []() |
+| []() | []() |
+| []() | []() |
+
+
+
 ## Modelling the data
 
 
