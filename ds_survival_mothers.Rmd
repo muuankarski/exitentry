@@ -453,6 +453,8 @@ df.long3$duration[df.long3$duration == -14] <- NA
 df.long3$event[df.long3$value_end == 1] <- 1
 df.long3$event[is.na(df.long3$value_end)] <- 0
 
+save(df.long3, file="data/survival.RData")
+
 ```
 
 ### Length of maternity leave spells
@@ -505,8 +507,10 @@ ggsurv(kmsurvival, main="survival curves from Cox Proportional Hazards model")
 
 ```{rsurvivalsurvivalcurve2, echo=TRUE, fig.height=16, fig.width=16}
 library(simPH)
-kmsurvival2 <- survfit(Surv(duration,event) ~ RB020, data = df.long3)
-ggfitStrata(kmsurvival2, byStrata = TRUE, title="Stratified survival curves from Cox Proportional Hazards model")
+kmsurvival2 <- survfit(Surv(duration,event) ~ RB020, 
+                       data = df.long3)
+ggfitStrata(kmsurvival2, byStrata = TRUE, 
+            title="Stratified survival curves from Cox Proportional Hazards model")
 ```
 
 

@@ -32,6 +32,8 @@ cntryDat$iso2c <- countrycode(cntryDat$cntry, "country.name",
 cntryDat$iso3c <- countrycode(cntryDat$cntry, "country.name",
                               "iso3c", 
                               warn = FALSE)
+save(cntryDat, file="data/cntryDat.RData")
+
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 ```
 
@@ -147,11 +149,11 @@ plot <- ggplot(neetL, aes(x=cntry,group=cntry)) +
     geom_path(data=neetL,aes(x=cntry,y=valueNum,
                              group=cntry,
                              color=regime),
-              size=1) +
+              size=.8) +
   geom_point(data=neetL[neetL$variable %in% "men",], 
-             aes(y=valueNum,shape=variable),size=2.5) + 
+             aes(y=valueNum,shape=variable,color=regime),size=2.5) + 
   geom_point(data=neetL[neetL$variable %in% "women",], 
-             aes(y=valueNum,shape=variable),size=2.5) +
+             aes(y=valueNum,shape=variable,color=regime),size=2.5) +
   theme_minimal() +
   scale_color_manual(values = cbbPalette) + 
   labs(x="",y="15-29 year-olds who are neither \n in employment nor in education or training") +
@@ -170,7 +172,6 @@ ggsave(plot,file="figure/NEETunEmployment.png",
        width=14/2.54, 
        height=12/2.54, 
        dpi=300)
-
 
 ```
 
@@ -300,4 +301,167 @@ ggsave(plot,file="figure/GenderPayGap.png",
 
 - [For MS Word](figure/GenderPayGap.png)
 
-...
+
+# Survival curves
+
+```{rSurvivalcurves, results='hide'}
+library(survival)
+source("survival/ggsurv.R")
+load("data/survival.RData")
+load("data/cntryDat.RData")
+#kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
+df.long3$cntry <- NULL
+df.long3 <- merge(df.long3,cntryDat,by.x="RB020",
+                   by.y="iso2c")
+```
+
+## By Regime
+
+
+![](figure/kmSurvRegime.png)
+
+[For Word](figure/kmSurvRegime.png)
+
+```{rSurvRegiime, results='hide'}
+kmSurvRegime <- survfit(Surv(duration,event) ~ regime, 
+                       data = df.long3)
+ppi <- 150
+png("figure/kmSurvRegime.png", width=14/2.54*ppi, height=15/2.54*ppi, res=ppi)
+ggfitStrata(kmSurvRegime, byStrata = TRUE, title="By Welfare Regime")
+dev.off()
+
+```
+
+
+## By regime and country
+
+### Nordic
+
+![](figure/kmSurvNord.png)
+
+[for Word](figure/kmSurvNord.png)
+
+```{rSurvNord, results='hide'}
+library(simPH)
+kmSurvNord <- survfit(Surv(duration,event) ~ cntry, 
+                       data = df.long3[df.long3$regime == "Nordic",])
+ppi <- 150
+png("figure/kmSurvNord.png", width=14/2.54*ppi, height=10/2.54*ppi, res=ppi)
+ggfitStrata(kmSurvNord, byStrata = TRUE, 
+            title="Nordic")
+dev.off()
+
+
+```
+
+*****
+
+### Liberal
+
+![](figure/kmSurvLibe.png)
+
+[for Word](figure/kmSurvLibe.png)
+
+```{rSurvLibe, results='hide'}
+kmSurvLibe <- survfit(Surv(duration,event) ~ cntry, 
+                       data = df.long3[df.long3$regime == "Liberal",])
+ppi <- 150
+png("figure/kmSurvLibe.png", width=14/2.54*ppi, height=10/2.54*ppi, res=ppi)
+ggfitStrata(kmSurvLibe, byStrata = FALSE, 
+            title="Liberal")
+dev.off()
+
+```
+
+*****
+
+### Central Europe
+
+![](figure/kmSurvCeEu.png)
+
+[For Word](figure/kmSurvCeEu.png)
+
+```{rSurvCeEu, results='hide'}
+kmSurvCeEu <- survfit(Surv(duration,event) ~ cntry, 
+                       data = df.long3[df.long3$regime == "Central Europe",])
+ppi <- 150
+png("figure/kmSurvCeEu.png", width=14/2.54*ppi, height=10/2.54*ppi, res=ppi)
+ggfitStrata(kmSurvCeEu, byStrata = TRUE, 
+            title="Central Europe")
+dev.off()
+
+```
+
+*****
+
+### Post Socialist
+
+![](figure/kmSurvPoso.png)
+
+[For Word](figure/kmSurvPoso.png)
+
+```{rSurvPoSo, results='hide'}
+kmSurvPoso <- survfit(Surv(duration,event) ~ cntry, 
+                       data = df.long3[df.long3$regime == "Post Soc",])
+ppi <- 150
+png("figure/kmSurvPoso.png", width=14/2.54*ppi, height=15/2.54*ppi, res=ppi)
+ggfitStrata(kmSurvPoso, byStrata = TRUE, 
+            title="Post Soc")
+dev.off()
+
+```
+
+*****
+
+### Southern Europe
+
+![](figure/kmSurvSoEu.png)
+
+[For Word](figure/kmSurvSoEu.png)
+
+```{rSurvSoEu, results='hide'}
+kmSurvSoEu <- survfit(Surv(duration,event) ~ cntry, 
+                       data = df.long3[df.long3$regime == "Southern Europe",])
+ppi <- 150
+png("figure/kmSurvSoEu.png", width=14/2.54*ppi, height=15/2.54*ppi, res=ppi)
+ggfitStrata(kmSurvSoEu, byStrata = TRUE, 
+            title="Southern Europe")
+dev.off()
+
+```
+
+
+*****
+
+
+
+
+
+
+
+```{r, eval=FALSE}
+# revaueling the survfit objects strata values
+# library(plyr)
+# revalue(kmsurvival2$strata, 
+#         replace = c(cntry=Austria = "Austria",
+#                     cntry=Belgium = "Belgium",
+#                     cntry=Czech Republic = "Czech Republic",
+#                     cntry=Denmark = "Denmark",
+#                     cntry=Estonia = "Estonia",
+#                     cntry=Finland = "Finland",
+#                     cntry=France = "France",
+#                     cntry=Hungary = "Hungary",
+#                     cntry=Ireland = "Ireland",
+#                     cntry=Italy = "Italy",
+#                     cntry=Netherlands = "Netherlands",
+#                     cntry=Norway = "Norway",
+#                     cntry=Poland = "Poland",
+#                     cntry=Portugal = "Portugal",
+#                     cntry=Slovakia = "Slovakia",
+#                     cntry=Slovenia = "Slovenia",
+#                     cntry=Spain = "Spain",
+#                     cntry=Sweden = "Sweden"), 
+#         warn_missing = TRUE)
+
+```
+
