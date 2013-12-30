@@ -442,9 +442,11 @@ newborn$birthGiven <- 1
 # so that all new var birthGiven is given to mothers of babies
 names(newborn)[1] <- "year"
 # babies by year and country
-datEnterBirth <- merge(dat.per,newborn[,c("year","RB020","RB230","birthGiven")],
-by.x=c("RB020","RB030"),
-by.y=c("RB020","RB230"))
+datEnterBirth <- merge(dat.per,newborn[,c("year","RB020",
+                                          "RB230","birthGiven")],
+                       by.x=c("RB020","RB030"),
+                       by.y=c("RB020","RB230"))
+# wave relative to birth of baby
 datEnterBirth$time <- datEnterBirth$RB010 - datEnterBirth$year
 # We want that all the cases have data AT LEAST from time -1, 0 and +1 -
 # so let's exclude cases missing that information
@@ -459,6 +461,9 @@ datEnterBirth2 <- merge(cond,datEnterBirth,by=c("RB020","PER_ID"))
 #
 save(datEnterBirth, file="data/datEnterBirth.RData")
 save(datEnterBirth2, file="data/datEnterBirth2.RData")
+# for entry exit analysis we want only the from the year baby was born
+datEnterBirth3 <- datEnterBirth2[datEnterBirth2$time >= 0,]
+save(datEnterBirth3, file="data/datEnterBirth3.RData")
 ```
 
 ### Number of events by year & country
