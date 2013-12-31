@@ -32,15 +32,19 @@ cntryDat$iso2c <- countrycode(cntryDat$cntry, "country.name",
 cntryDat$iso3c <- countrycode(cntryDat$cntry, "country.name",
                               "iso3c", 
                               warn = FALSE)
+cntryDat$iso2c[cntryDat$iso2c == "GB"] <- "UK"
 save(cntryDat, file="data/cntryDat.RData")
 
-cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+
 ```
 
 ```{rprintCntryData, results='asis'}
 library(xtable)
 print.xtable(xtable(cntryDat), type="html",
              include.rownames=FALSE)
+
 ```
 
 
@@ -96,7 +100,6 @@ ggsave(plot,file="figure/OaDependencyRatio.png",
        width=14/2.54, 
        height=12/2.54, 
        dpi=300)
-
 ```
 
 ![](figure/OaDependencyRatio.png)
@@ -173,6 +176,7 @@ ggsave(plot,file="figure/NEETunEmployment.png",
        height=12/2.54, 
        dpi=300)
 
+
 ```
 
 ![](figure/NEETunEmployment.png)
@@ -193,6 +197,7 @@ dat2 <- dat[c("cname","year","plf_flf")]
 dat2 <- dat2[dat2$year >= 1980,]
 laborDat <- merge(dat2,cntryDat,by.x="cname",by.y="cntry")
 laborDat <- laborDat[!is.na(laborDat$plf_flf), ]
+
 ```
 
 
@@ -227,8 +232,6 @@ ggsave(plot,file="figure/FemaleLaborForce.png",
        width=14/2.54, 
        height=16/2.54, 
        dpi=300)
-
-
 ```
 
 ![](figure/FemaleLaborForce.png)
@@ -289,6 +292,7 @@ plot <- ggplot(datL, aes(x=variable,y=value,
   facet_wrap(~regime, ncol=2)  +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
+
 ggsave(plot,file="figure/GenderPayGap.png",
        width=14/2.54, 
        height=16/2.54, 
@@ -302,3 +306,45 @@ ggsave(plot,file="figure/GenderPayGap.png",
 - [For MS Word](figure/GenderPayGap.png)
 
 
+# Distribution of age of women given birth
+
+```{rsubsetentermaterintyhistogram}
+load("data/datEnterBirth.RData")
+load("data/datEnterBirth2.RData")
+
+datTm <- datEnterBirth2[datEnterBirth2$year==datEnterBirth2$RB010,]
+
+library(ggplot2)
+
+datTm <- merge(datTm,cntryDat,by.x="RB020",by.y="iso2c")
+
+plot <- ggplot(data=datTm, 
+       aes(x=factor(reorder(cntry, RX010, median, na.rm=TRUE)),
+           y=RX010,
+           fill=regime)) + 
+  geom_boxplot() +
+  scale_fill_manual(values=cbbPalette) +
+  theme_minimal() +
+  theme(legend.position="top") +
+  labs(x="",y="Age of mothers") +
+  theme(legend.title=element_blank()) +
+  theme(legend.text=element_text(size=6)) +
+  theme(legend.position="top") +
+  theme(axis.title.y = element_text(size=6)) +
+  theme(axis.title.x = element_text(size=6)) +
+  theme(axis.text.y = element_text(size=6)) +
+  theme(axis.text.x = element_text(size=6)) +
+  theme(legend.key.size = unit(3, "mm")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+
+  coord_cartesian(ylim=c(15,60))
+  
+ggsave(plot,file="figure/MotherAge.png",
+       width=14/2.54, 
+       height=10/2.54, 
+       dpi=300)
+```
+
+
+![](figure/MotherAge.png)
+
+- [For MS Word](figure/MotherAge.png)

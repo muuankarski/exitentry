@@ -486,13 +486,13 @@ ggplot(df.long3,
 
 ```{rSurvivalcurves, results='hide'}
 library(survival)
-source("survival/ggsurv.R")
 load("data/df.long4.RData")
 load("data/cntryDat.RData")
 #kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
 df.long4$cntry <- NULL
 df.long4 <- merge(df.long4,cntryDat,by.x="RB020",
                    by.y="iso2c")
+
 
 ```
 
@@ -511,19 +511,32 @@ First the tables
 ```{rsurvTablesRegime1}
 reg <- survfit(Surv(df.long4$duration,df.long4$event) ~ df.long4$regime)
 summary(reg)
+
 ```
 
 And the preliminary plot
 
 ```{rsurvTablesRegime2}
-plot(reg, col=c(1:5), xlab="time", ylab="survival probability")
-legend(30,0.5, c("Central Europe","Liberal","Nordic","Post Soc","Southern Europe"),
-       col=(1:5),lwd=0.5)
+# plot(reg, col=c(1:5), xlab="time", ylab="survival probability")
+# legend(50,0.5, c("Central Europe","Liberal","Nordic","Post Soc","Southern Europe"),
+#        col=(1:5),lwd=0.5)
+source("survival/ggsurvMod.R")
+plot <- ggsurv(reg)
+
+ggsave(plot,file="figure/KaplanMeier.png",
+       width=14/2.54, 
+       height=10/2.54, 
+       dpi=300)
+
 ```
+
+![](figure/KaplanMeier.png)
+
+[Load for Ms Word](figure/KaplanMeier.png)
 
 
 <!--
-## Survival curves for the paper
+Survival curves for the paper
 
 **Number of mothers on maternity leave by events by country**
 
@@ -543,6 +556,10 @@ library(xtable)
 print.xtable(xtable(tblW), type="html")
 
 ```
+
+
+
+
 
 
 
