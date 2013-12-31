@@ -1,38 +1,17 @@
 - [Back to index](index.html)
 
-# Survival curves of mothers returning work
+# Sequence analysis of mothers monthly activities birth
 
 
-```{roptsmissing, echo=FALSE}
+```{roptssequence, echo=FALSE}
 opts_chunk$set(echo=FALSE,eval=TRUE,fig.height=8, fig.width=10,cache=TRUE)
 ```
 
-```{rsurvivalloaddata}
-load("data/datEnterBirth3.RData")
+```{rsequencelloaddata}
+load("data/datEnterBirth4.RData")
 ```
 
-## Variable: PL210x - Main activity by month
-
-The key variale [PL210A - Main activity on January](http://www.gesis.org/?id=8063#PL210A) has following values
-
-Table: Values and labels of var PL210A - Main activity on January
-
-| Value | Label |
-| ----- | ----- |
-| 1 | Employee (full-time) |
-| 2 | Employee (part-time) |
-| 3 | Self-employed (full-time) |
-| 4 | Self-employed (part-time) |
-| 5 | unemployed |
-| 6 | Retired |
-| 7 | Student |
-| 8 | Other inactive |
-
-Below are plotted all the values as stacked bars from all the months of the data
-
-### All the European mothers
-
-```{rsurvivalplotvalues, fig.height=14}
+```{r}
 library(reshape2)
 varlist <- c("PER_ID","RB010","RB020","PL210A","PL210B",
              "PL210C","PL210D",
@@ -41,29 +20,29 @@ varlist <- c("PER_ID","RB010","RB020","PL210A","PL210B",
              "PL210I","PL210J",
              "PL210K","PL210L")
 
-dat2005 <- datEnterBirth3[datEnterBirth3$RB010 == 2005,varlist]
+dat2005 <- datEnterBirth4[datEnterBirth4$RB010 == 2005,varlist]
 dat2005.l <- melt(dat2005, id.vars = c("RB010","RB020","PER_ID"))
 # 1 2006
-dat2006 <- datEnterBirth3[datEnterBirth3$RB010 == 2006,varlist]
+dat2006 <- datEnterBirth4[datEnterBirth4$RB010 == 2006,varlist]
 dat2006.l <- melt(dat2006, id.vars = c("RB010","RB020","PER_ID"))
 # 1 2007
-dat2007 <- datEnterBirth3[datEnterBirth3$RB010 == 2007,varlist]
+dat2007 <- datEnterBirth4[datEnterBirth4$RB010 == 2007,varlist]
 dat2007.l <- melt(dat2007, id.vars = c("RB010","RB020","PER_ID"))
 # 1 2008
-dat2008 <- datEnterBirth3[datEnterBirth3$RB010 == 2008,varlist]
+dat2008 <- datEnterBirth4[datEnterBirth4$RB010 == 2008,varlist]
 dat2008.l <- melt(dat2008, id.vars = c("RB010","RB020","PER_ID"))
 # 1 2009
-dat2009 <- datEnterBirth3[datEnterBirth3$RB010 == 2009,varlist]
+dat2009 <- datEnterBirth4[datEnterBirth4$RB010 == 2009,varlist]
 dat2009.l <- melt(dat2009, id.vars = c("RB010","RB020","PER_ID"))
 # 2010
-dat2010 <- datEnterBirth3[datEnterBirth3$RB010 == 2010,varlist]
+dat2010 <- datEnterBirth4[datEnterBirth4$RB010 == 2010,varlist]
 dat2010.l <- melt(dat2010, id.vars = c("RB010","RB020","PER_ID"))
 # 2011
-dat2011 <- datEnterBirth3[datEnterBirth3$RB010 == 2011,varlist]
+dat2011 <- datEnterBirth4[datEnterBirth4$RB010 == 2011,varlist]
 dat2011.l <- melt(dat2011, id.vars = c("RB010","RB020","PER_ID"))
 
-dat <- rbind(#dat2005.l,
-             #dat2006.l,
+dat <- rbind(dat2005.l,
+             dat2006.l,
              dat2007.l,
              dat2008.l,
              dat2009.l,
@@ -86,146 +65,71 @@ dat$date <- paste(dat$RB010,dat$time,sep="-")
 dat$date <- as.Date(dat$date)
 
 dat$value[is.na(dat$value)] <- 0
+```
+
+
+```{r}
+library(data.table)
+dat <- data.table(dat,key = "PER_ID")
+dat <- dat[,transform(.SD,Order = rank(date,
+                                ties.method = "first")),by = PER_ID]
+
+head(dat, 20)
 
 library(ggplot2)
-tbl <- as.data.frame(table(dat$date,dat$value))
+head(dat)
+datX <- dat[dat$RB020 == "FI",]
+ggplot(datX, aes(x=PER_ID,y=rank,group=PER_ID)) +
+  geom_bar(stat="identity")
 
-tbl$value[tbl$Var2 == 1] <- "Employee (full-time)"
-tbl$value[tbl$Var2 == 2] <- "Employee (part-time)"
-tbl$value[tbl$Var2 == 3] <- "Self-employed (full-time)"
-tbl$value[tbl$Var2 == 4] <- "Self-employed (part-time)"
-tbl$value[tbl$Var2 == 5] <- "unemployed"
-tbl$value[tbl$Var2 == 6] <- "Retired"
-tbl$value[tbl$Var2 == 7] <- "Student"
-tbl$value[tbl$Var2 == 8] <- "Other inactive"
-tbl$value[tbl$Var2 == 0] <- "missing data"
+dat$XOrder <- paste("X",dat$Order,sep="")
+datW <- dcast(dat, PER_ID + RB010 + RB020 ~ XOrder,
+             s(datWvalue.vars="value")
+seqstatl(datW[, 4:75])
 
-tbl$value <- factor(tbl$value, levels=c("Employee (full-time)",
-                                        "Employee (part-time)",
-                                        "Self-employed (full-time)",
-                                        "Self-employed (part-time)",
-                                        "unemployed",
-                                        "Retired",
-                                        "Student",
-                                        "Other inactive",
-                                        "missing data"))
+datW.labels <- c("Employee (full-time)",
+                 "Employee (part-time)",
+                 "Self-employed (full-time)",
+                 "Self-employed (part-time)",
+                 "unemployed",
+                 "Retired",
+                 "Student",
+                 "Other inactive")
 
-manual_fill <- scale_fill_manual(values=c("#999999", "#E69F00", 
-                                          "#56B4E9", "#009E73",
-                                          "#D55E00", "#CC79A7",
-                                          "#0072B2","#F0E442",
-                                          "#000000"))
+datW.scodes <- c("EmpF",
+                 "EmpPT",
+                 "SEmpF",
+                 "SEmpPT",
+                 "ue",
+                 "ret",
+                 "stu",
+                 "OtInac")
 
-ggplot(tbl, aes(x=Var1,y=Freq,fill=value)) +
-         geom_bar(stat="identity") +
-  coord_flip() + manual_fill +
-  theme(legend.position="top") +
-  guides(fill = guide_legend(nrow = 2))
+mvad.seq <- seqdef(datW, 4:75, states = datW.scodes, 
+    labels = datW.labels, xtstep = 8)
 
+par(mfrow = c(2, 2))
+seqiplot(mvad.seq, withlegend = FALSE, border = NA)
+seqIplot(mvad.seq, sortv = "from.start", withlegend = FALSE)
+seqlegend(mvad.seq)
 
-```
+library(TraMineR)
+data(mvad)
+seqstatl(mvad[, 17:86])
 
-### Mothers by country
-
-```{rsurvivalplotvaluesbycountry, fig.height=32}
-tbl <- as.data.frame(table(dat$RB020,dat$date,dat$value))
-
-
-tbl$value[tbl$Var3 == 1] <- "Employee (full-time)"
-tbl$value[tbl$Var3 == 2] <- "Employee (part-time)"
-tbl$value[tbl$Var3 == 3] <- "Self-employed (full-time)"
-tbl$value[tbl$Var3 == 4] <- "Self-employed (part-time)"
-tbl$value[tbl$Var3 == 5] <- "unemployed"
-tbl$value[tbl$Var3 == 6] <- "Retired"
-tbl$value[tbl$Var3 == 7] <- "Student"
-tbl$value[tbl$Var3 == 8] <- "Other inactive"
-tbl$value[tbl$Var3 == 0] <- "missing data"
-
-tbl$value <- factor(tbl$value, levels=c("Employee (full-time)",
-                                        "Employee (part-time)",
-                                        "Self-employed (full-time)",
-                                        "Self-employed (part-time)",
-                                        "unemployed",
-                                        "Retired",
-                                        "Student",
-                                        "Other inactive",
-                                        "missing data"))
-
-ggplot(tbl, aes(x=Var2,y=Freq,fill=value)) +
-         geom_bar(stat="identity") +
-  coord_flip() + manual_fill +
-  theme(legend.position="top") +
-  facet_wrap(~Var1,ncol=4) +
-  guides(fill = guide_legend(nrow = 2))
-
+mvad.alphabet <- c("employment", "FE", "HE", "joblessness", "school", 
+    "training")
+mvad.labels <- c("employment", "further education", "higher education", 
+    "joblessness", "school", "training")
+mvad.scodes <- c("EM", "FE", "HE", "JL", "SC", "TR")
+mvad.seq <- seqdef(mvad, 17:86, alphabet = mvad.alphabet, states = mvad.scodes, 
+    labels = mvad.labels, xtstep = 6)
 
 ```
 
-**Some notes**
-
-- Data is perfect from some countries and useless in others
-- From the latest years it is basically missing
-
-Previously I subsetted certain countries (excluding nordic for instance), but now I have included all the countries AND all the years.
-
-## creating a survival data.frame
-
-[CRAN Task View: Survival Analysis](http://cran.r-project.org/web/views/Survival.html) works as a starting point.
-
-> Survival analysis, also called event history analysis in social science, or reliability analysis in engineering, deals with time until occurrence of an event of interest. However, this failure time may not be observed within the relevant time period, producing so-called censored observations.
-
->This task view aims at presenting the useful R packages for the analysis of time to event data. 
-
-### Filtering countries & years with missing data
-
-And get this data.
-
-```{rsurvivalfiltermissindata1}
-
-#datS <- dat[dat$RB020 %in% clist,]
-datSdat
-#datS <- datS[datS$RB010 <= 2008,]
-
-datS$RB020 <- factor(datS$RB020)
-
-tbl <- as.data.frame(table(datS$RB020,datS$date,datS$value))
-
-tbl$value[tbl$Var3 == 1] <- "Employee (full-time)"
-tbl$value[tbl$Var3 == 2] <- "Employee (part-time)"
-tbl$value[tbl$Var3 == 3] <- "Self-employed (full-time)"
-tbl$value[tbl$Var3 == 4] <- "Self-employed (part-time)"
-tbl$value[tbl$Var3 == 5] <- "unemployed"
-tbl$value[tbl$Var3 == 6] <- "Retired"
-tbl$value[tbl$Var3 == 7] <- "Student"
-tbl$value[tbl$Var3 == 8] <- "Other inactive"
-tbl$value[tbl$Var3 == 0] <- "missing data"
-
-tbl$value <- factor(tbl$value, levels=c("Employee (full-time)",
-                                        "Employee (part-time)",
-                                        "Self-employed (full-time)",
-                                        "Self-employed (part-time)",
-                                        "unemployed",
-                                        "Retired",
-                                        "Student",
-                                        "Other inactive",
-                                        "missing data"))
-
-ggplot(tbl, aes(x=Var2,y=Freq,fill=value)) +
-         geom_bar(stat="identity") +
-  coord_flip() + manual_fill +
-  theme(legend.position="top") +
-  facet_wrap(~Var1,ncol=4) +
-  guides(fill = guide_legend(nrow = 2))
 
 
-```
-
-### Discrete time data
-
-We assume that mothers on welfare benefits belong to group 8 (Other inactive) and therefore an event would change over to value 1:4 (employee/self-employed - full/part-time)
-
-
-```{rsurvivaldatacreation1}
+```{r}
 datS <- dat
 # let's create an event variable
 library(reshape2)
@@ -442,319 +346,6 @@ df.long3$duration[df.long3$duration <= 0] <- NA
 df.long3$event[df.long3$value_end == 1] <- TRUE
 df.long3$event[is.na(df.long3$value_end)] <- FALSE
 
-save(df.long3, file="data/survival.RData")
 
-```
-
-### Length of maternity leave spells
-
-```{rsurvivalplotlegntspells1}
-ggplot(df.long3,
-       aes(x=duration)) +
-  geom_bar() +
-  labs(title="Duration of maternity leave spells",
-       x="duration in months")
-
-```
-
-```{rsurvivalplotlegntspells2, fig.height=16}
-ggplot(df.long3,
-       aes(x=duration)) +
-  geom_bar() +
-  labs(title="Duration of maternity leave spells by country",
-       x="duration in months") +
-  facet_wrap(~RB020, ncol=2)
-
-```
-
-### Number of mothers on maternity leave by events by country
-
-The table below lists numbers of mothers on maternity leave in each country (`sum` column) that. Column `notHappened` has number of mother that did not exit into work, but were sencored before event took place. `happened` column has the crucial number, that is the number of mother that exited to employment.
-
-```{rsurvivalTable1, results='asis'}
-load("data/cntryDat.RData")
-
-df.long3 <- merge(df.long3,cntryDat,by.x="RB020",
-                        by.y="iso2c")
-tbl <- data.frame(table(df.long3$regime,df.long3$event))
-tblW <- dcast(tbl, Var1 ~ Var2, value.var = "Freq")
-tblW$sum <- rowSums(tblW[,2:3])
-names(tblW) <- c("cntry","notHappened","happened","sum")
-#kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
-library(xtable)
-print.xtable(xtable(tblW), type="html")
-
-```
-
-
-```{rSurvivalcurves, results='hide'}
-library(survival)
-source("survival/ggsurv.R")
-load("data/survival.RData")
-load("data/cntryDat.RData")
-#kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
-df.long3$cntry <- NULL
-df.long3 <- merge(df.long3,cntryDat,by.x="RB020",
-                   by.y="iso2c")
-
-```
-
-# Survival tables
-
-## By regimes
-
-```{rsurvTablesRegime}
-reg <- survfit(Surv(duration,event) ~ regime, 
-                       data = df.long3)
-summary(reg)
-```
-
-
-## By countries
-
-```{rsurvTablesCntry,eval=FALSE}
-cnt <- survfit(Surv(duration,event) ~ cntry, 
-                       data = df.long3)
-summary(cnt)
-
-```
-
-# Survival curves for the paper
-
-
-## By Regime
-
-
-
-
-![](figure/kmSurvRegime.png)
-
-[For Word](figure/kmSurvRegime.png)
-
-```{rSurvRegiime, results='hide'}
-kmSurvRegime <- survfit(Surv(duration,event) ~ regime, 
-                       data = df.long3)
-kmSurvRegime <- survfit(Surv(time=as.numeric(df.long3$startDate),
-                             time2=as.numeric(df.long3$endDate),
-                             event=df.long3$event,
-                             type="interval") ~ regime, 
-                       data = df.long3)
-
-so <- survfit(Surv(duration,event) ~ regime, 
-                       data = df.long3)
-plot(so)
-library(eha)
-
-plot.Surv(so)
-
-
-data(lung)
-lung.surv <- survfit(Surv(time,status) ~ 1, data = lung)
-ggsurv(kmSurvRegime)
-
-ppi <- 150
-png("figure/kmSurvRegime.png", width=14/2.54*ppi, height=15/2.54*ppi, res=ppi)
-ggfitStrata(kmSurvRegime, byStrata = TRUE, title="By Welfare Regime")
-dev.off()
-
-```
-
-
-## By regime and country
-
-### Nordic
-
-![](figure/kmSurvNord.png)
-
-[for Word](figure/kmSurvNord.png)
-
-```{rSurvNord, results='hide'}
-library(simPH)
-kmSurvNord <- survfit(Surv(duration,event) ~ cntry, 
-                       data = df.long3[df.long3$regime == "Nordic",])
-
-ggsurv(kmSurvNord)
-ppi <- 150
-png("figure/kmSurvNord.png", width=14/2.54*ppi, height=10/2.54*ppi, res=ppi)
-ggfitStrata(kmSurvNord, byStrata = TRUE, 
-            title="Nordic")
-dev.off()
-
-
-```
-
-*****
-
-### Liberal
-
-![](figure/kmSurvLibe.png)
-
-[for Word](figure/kmSurvLibe.png)
-
-```{rSurvLibe, results='hide'}
-kmSurvLibe <- survfit(Surv(duration,event) ~ cntry, 
-                       data = df.long3[df.long3$regime == "Liberal",])
-ppi <- 150
-png("figure/kmSurvLibe.png", width=14/2.54*ppi, height=10/2.54*ppi, res=ppi)
-ggfitStrata(kmSurvLibe, byStrata = FALSE, 
-            title="Liberal")
-dev.off()
-```
-
-*****
-
-### Central Europe
-
-![](figure/kmSurvCeEu.png)
-
-[For Word](figure/kmSurvCeEu.png)
-
-```{rSurvCeEu, results='hide'}
-kmSurvCeEu <- survfit(Surv(duration,event) ~ cntry, 
-                       data = df.long3[df.long3$regime == "Central Europe",])
-ppi <- 150
-png("figure/kmSurvCeEu.png", width=14/2.54*ppi, height=10/2.54*ppi, res=ppi)
-ggfitStrata(kmSurvCeEu, byStrata = TRUE, 
-            title="Central Europe")
-dev.off()
-```
-
-*****
-
-### Post Socialist
-
-![](figure/kmSurvPoso.png)
-
-[For Word](figure/kmSurvPoso.png)
-
-```{rSurvPoSo, results='hide'}
-kmSurvPoso <- survfit(Surv(duration,event) ~ cntry, 
-                       data = df.long3[df.long3$regime == "Post Soc",])
-ppi <- 150
-png("figure/kmSurvPoso.png", width=14/2.54*ppi, height=15/2.54*ppi, res=ppi)
-ggfitStrata(kmSurvPoso, byStrata = TRUE, 
-            title="Post Soc")
-dev.off()
-```
-
-*****
-
-### Southern Europe
-
-![](figure/kmSurvSoEu.png)
-
-[For Word](figure/kmSurvSoEu.png)
-
-```{rSurvSoEu, results='hide'}
-kmSurvSoEu <- survfit(Surv(duration,event) ~ cntry, 
-                       data = df.long3[df.long3$regime == "Southern Europe",])
-ppi <- 150
-png("figure/kmSurvSoEu.png", width=14/2.54*ppi, height=15/2.54*ppi, res=ppi)
-ggfitStrata(kmSurvSoEu, byStrata = TRUE, 
-            title="Southern Europe")
-dev.off()
-```
-
-
-*****
-
-
-
-
-
-
-
-```{r, eval=FALSE}
-# revaueling the survfit objects strata values
-# library(plyr)
-# revalue(kmsurvival2$strata, 
-#         replace = c(cntry=Austria = "Austria",
-#                     cntry=Belgium = "Belgium",
-#                     cntry=Czech Republic = "Czech Republic",
-#                     cntry=Denmark = "Denmark",
-#                     cntry=Estonia = "Estonia",
-#                     cntry=Finland = "Finland",
-#                     cntry=France = "France",
-#                     cntry=Hungary = "Hungary",
-#                     cntry=Ireland = "Ireland",
-#                     cntry=Italy = "Italy",
-#                     cntry=Netherlands = "Netherlands",
-#                     cntry=Norway = "Norway",
-#                     cntry=Poland = "Poland",
-#                     cntry=Portugal = "Portugal",
-#                     cntry=Slovakia = "Slovakia",
-#                     cntry=Slovenia = "Slovenia",
-#                     cntry=Spain = "Spain",
-#                     cntry=Sweden = "Sweden"), 
-#         warn_missing = TRUE)
-
-```
-
-
-
-
-
-
-
-```{rmiscsurvivalcode, eval=FALSE}
-Load survival
-library(survival)
-Subset data
-bladder1 <- bladder[bladder$enum < 5, ]
-M1 <- coxph(Surv(stop, event) ~ (rx + size + number) * strata(enum) + cluster(id), bladder1)
-M1Fit <- survfit(kmsurvival2)
-
-
-
-df.long3$RB020num <- as.numeric(df.long3$RB020)
-summary(df.long3$RB020num)
-
-
-
-
-ggsurv(kmsurvival2)
-summary(kmsurvival2)
-
-lung.surv <- survfit(Surv(time,status) ~ 1, data = lung)
-ggsurv(lung.surv)
-lung.surv2 <- survfit(Surv(time,status) ~ sex, data = lung)
-(pl2 <- ggsurv(lung.surv2))
-
-plot(kmsurvival, xlab="Time", ylab="Survival Probability")
-
-# Kaplan-Meier non-parametric analysis by group
-kmsurvival1 <- survfit(Surv(df.long3$duration,df.long3$event) ~ df.long3$RB020)
-ggsurv(kmsurvival1)
-plot(kmsurvival1, xlab="Time", ylab="Survival Probability")
-
-# Nelson-Aalen non-parametric analysis
-nasurvival <- survfit(coxph(Surv(df.long3$duration,df.long3$event) ~ 1), type="aalen")
-summary(nasurvival)
-plot(nasurvival, xlab="Time", ylab="Survival Probability")
-
-
-# Cox proportional hazard model - coefficients and hazard rates
-#coxph <- coxph(Surv(df.long3$duration,df.long3$event) ~ X, method="breslow")
-#coxph <- coxph(Surv(time,event) ~ X, method="breslow")
-#summary(coxph)
-
-
-# Exponential, Weibull, and log-logistic parametric model coefficients
-# Opposite signs from Stata results, Weibull results differ; same as SAS
-#exponential <- survreg(Surv(df.long3$duration,df.long3$event) ~ X, dist="exponential")
-#exponential <- survreg(Surv(time,event) ~ X, dist="exponential")
-#summary(exponential)
-
-#weibull <- survreg(Surv(time,event) ~ X, dist="weibull")
-#summary(weibull)
-
-loglogistic <- survreg(Surv(time,event) ~ X, dist="loglogistic")
-summary(loglogistic)
-
-
-s <- coxph(Surv(df.long3$duration, df.long3$event), ~RB020, data = df.long3)
-    type="right",
-    origin=0))
-is.Surv(s)
 ```
 

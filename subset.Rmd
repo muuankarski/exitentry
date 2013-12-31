@@ -464,6 +464,9 @@ save(datEnterBirth2, file="data/datEnterBirth2.RData")
 # for entry exit analysis we want only the from the year baby was born
 datEnterBirth3 <- datEnterBirth2[datEnterBirth2$time >= 0,]
 save(datEnterBirth3, file="data/datEnterBirth3.RData")
+# data for sequence analysis
+datEnterBirth4 <- datEnterBirth2[datEnterBirth2$time >= -1,]
+save(datEnterBirth4, file="data/datEnterBirth4.RData")
 ```
 
 ### Number of events by year & country
