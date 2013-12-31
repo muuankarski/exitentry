@@ -183,7 +183,7 @@ And get this data.
 ```{rsurvivalfiltermissindata1}
 
 #datS <- dat[dat$RB020 %in% clist,]
-datSdat
+datS <- dat
 #datS <- datS[datS$RB010 <= 2008,]
 
 datS$RB020 <- factor(datS$RB020)
@@ -425,30 +425,46 @@ df.long2 <- df.long2[!is.na(df.long2$value), ]
 
 df.long3 <- merge(df.long1,df.long2,by="PER_ID",all.x=TRUE)
 
+df.long4 <- merge(df.long3,datS[,c("PER_ID","RB010","date")], by="PER_ID",all.x=TRUE)
+
 library(stringr)
 library(zoo)
-df.long3$startDate <- as.Date(12753 + 
-                                (as.numeric(str_replace(df.long3$var_start, 
+df.long4$startDate <- as.Date(12753 + 
+                                (as.numeric(str_replace(df.long4$var_start, 
                                                         "start","")))*31)
-df.long3$endDate <- as.Date(12753 + 
-                              (as.numeric(str_replace(df.long3$var_end,
+df.long4$endDate <- as.Date(12753 + 
+                              (as.numeric(str_replace(df.long4$var_end,
                                                       "end", "")))*31)
-df.long3$duration <- as.numeric(df.long3$endDate - 
-                                  df.long3$startDate)/31
+
+df.na <- df.long4[is.na(df.long4$endDate),]
+library(plyr)
+maxDate <- ddply(df.na,~PER_ID,
+            summarise,
+            max=max(date))
+
+df.long4 <- merge(df.long4,maxDate,by="PER_ID",all.x=TRUE)
+df.long4$endDate2 <- ifelse(is.na(df.long4$endDate),df.long4$max,df.long4$endDate)
+df.long4$endDate2 <- as.Date(df.long4$endDate2)
+
+df.long4$duration <- as.numeric(df.long4$endDate2 - 
+                                  df.long4$startDate)/31
+
 #df.long3 <- df.long3[df.long3$duration > 0,]
 
-df.long3$duration[df.long3$duration <= 0] <- NA
+df.long4$duration[df.long4$duration <= 0] <- NA
 
-df.long3$event[df.long3$value_end == 1] <- TRUE
-df.long3$event[is.na(df.long3$value_end)] <- FALSE
+df.long4$event[df.long4$value_end == 1] <- TRUE
+df.long4$event[is.na(df.long4$value_end)] <- FALSE
 
-save(df.long3, file="data/df.long3.RData")
+df.long4$dup <- duplicated(df.long4$PER_ID)
+df.long4 <- df.long4[df.long4$dup == FALSE,]
 
+save(df.long4, file="data/df.long4.RData")
 ```
 
 ### Length of maternity leave spells
 
-```{rsurvivalplotlegntspells1}
+```{rsurvivalplotlegntspells1, eval=FALSE}
 ggplot(df.long3,
        aes(x=duration)) +
   geom_bar() +
@@ -457,7 +473,7 @@ ggplot(df.long3,
 
 ```
 
-```{rsurvivalplotlegntspells2, fig.height=16}
+```{rsurvivalplotlegntspells2, fig.height=16, eval=FALSE}
 ggplot(df.long3,
        aes(x=duration)) +
   geom_bar() +
@@ -468,54 +484,57 @@ ggplot(df.long3,
 ```
 
 
-
-
 ```{rSurvivalcurves, results='hide'}
 library(survival)
 source("survival/ggsurv.R")
-load("data/df.long3.RData")
+load("data/df.long4.RData")
 load("data/cntryDat.RData")
 #kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
-df.long3$cntry <- NULL
-df.long3 <- merge(df.long3,cntryDat,by.x="RB020",
+df.long4$cntry <- NULL
+df.long4 <- merge(df.long4,cntryDat,by.x="RB020",
                    by.y="iso2c")
-
 
 ```
 
-# Survival tables
+# Survival tables & curves 
 
-## By regimes
+## Mean duration between exiting work to entering work (maternal leave)
 
-```{rsurvTablesRegime}
-reg <- survfit(Surv(duration,event) ~ regime, 
-                       data = df.long3)
+```{rsurMeanTime}
+with(df.long4, tapply(duration[event == TRUE], regime[event ==TRUE], mean, na.rm=TRUE))
+```
+
+## Survival curves by regimes
+
+First the tables
+
+```{rsurvTablesRegime1}
+reg <- survfit(Surv(df.long4$duration,df.long4$event) ~ df.long4$regime)
 summary(reg)
 ```
 
+And the preliminary plot
 
-## By countries
-
-```{rsurvTablesCntry,eval=FALSE}
-cnt <- survfit(Surv(duration,event) ~ cntry, 
-                       data = df.long3)
-summary(cnt)
-
+```{rsurvTablesRegime2}
+plot(reg, col=c(1:5), xlab="time", ylab="survival probability")
+legend(30,0.5, c("Central Europe","Liberal","Nordic","Post Soc","Southern Europe"),
+       col=(1:5),lwd=0.5)
 ```
 
-# Survival curves for the paper
 
+<!--
+## Survival curves for the paper
 
 **Number of mothers on maternity leave by events by country**
 
 The table below lists numbers of mothers on maternity leave in each country (`sum` column) that. Column `notHappened` has number of mother that did not exit into work, but were sencored before event took place. `happened` column has the crucial number, that is the number of mother that exited to employment.
+-->
 
-```{rsurvivalTable1, results='asis'}
+```{rsurvivalTable1, results='asis', eval=FALSE}
 load("data/cntryDat.RData")
 
-df.long3 <- merge(df.long3,cntryDat,by.x="RB020",
-                        by.y="iso2c")
-tbl <- data.frame(table(df.long3$regime,df.long3$event))
+
+tbl <- data.frame(table(df.long4$regime,df.long4$event))
 tblW <- dcast(tbl, Var1 ~ Var2, value.var = "Freq")
 tblW$sum <- rowSums(tblW[,2:3])
 names(tblW) <- c("cntry","notHappened","happened","sum")
@@ -525,29 +544,18 @@ print.xtable(xtable(tblW), type="html")
 
 ```
 
-## Regime level (still useless..)
-
-```{rRegimeTesti}
-source("survival/ggkm.R")
-reg <- survfit(Surv(duration,event) ~ regime, 
-                       data = df.long3)
-ggkm(reg, timeby=500)
-
-```
-
-
-
-## By Regime
 
 
 
 
 
+
+
+```{rSurvRegiime, results='hide', eval=FALSE}
 ![](figure/kmSurvRegime.png)
 
 [For Word](figure/kmSurvRegime.png)
 
-```{rSurvRegiime, results='hide'}
 kmSurvRegime <- survfit(Surv(duration,event) ~ regime, 
                        data = df.long3)
 kmSurvRegime <- survfit(Surv(time=as.numeric(df.long3$startDate),
@@ -576,6 +584,8 @@ dev.off()
 ```
 
 
+
+```{rSurvNord, results='hide', eval=FALSE}
 ## By regime and country
 
 ### Nordic
@@ -584,7 +594,6 @@ dev.off()
 
 [for Word](figure/kmSurvNord.png)
 
-```{rSurvNord, results='hide'}
 library(simPH)
 kmSurvNord <- survfit(Surv(duration,event) ~ cntry, 
                        data = df.long3[df.long3$regime == "Nordic",])
@@ -599,15 +608,15 @@ dev.off()
 
 ```
 
-*****
 
+
+```{rSurvLibe, results='hide', eval=FALSE}
 ### Liberal
 
 ![](figure/kmSurvLibe.png)
 
 [for Word](figure/kmSurvLibe.png)
 
-```{rSurvLibe, results='hide'}
 kmSurvLibe <- survfit(Surv(duration,event) ~ cntry, 
                        data = df.long3[df.long3$regime == "Liberal",])
 ppi <- 150
@@ -617,15 +626,15 @@ ggfitStrata(kmSurvLibe, byStrata = FALSE,
 dev.off()
 ```
 
-*****
 
+
+```{rSurvCeEu, results='hide', eval=FALSE}
 ### Central Europe
 
 ![](figure/kmSurvCeEu.png)
 
 [For Word](figure/kmSurvCeEu.png)
 
-```{rSurvCeEu, results='hide'}
 kmSurvCeEu <- survfit(Surv(duration,event) ~ cntry, 
                        data = df.long3[df.long3$regime == "Central Europe",])
 ppi <- 150
@@ -635,15 +644,14 @@ ggfitStrata(kmSurvCeEu, byStrata = TRUE,
 dev.off()
 ```
 
-*****
 
+```{rSurvPoSo, results='hide', eval=FALSE}
 ### Post Socialist
 
 ![](figure/kmSurvPoso.png)
 
 [For Word](figure/kmSurvPoso.png)
 
-```{rSurvPoSo, results='hide'}
 kmSurvPoso <- survfit(Surv(duration,event) ~ cntry, 
                        data = df.long3[df.long3$regime == "Post Soc",])
 ppi <- 150
@@ -653,15 +661,15 @@ ggfitStrata(kmSurvPoso, byStrata = TRUE,
 dev.off()
 ```
 
-*****
 
+```{rSurvSoEu, results='hide', eval=FALSE}
 ### Southern Europe
 
 ![](figure/kmSurvSoEu.png)
 
 [For Word](figure/kmSurvSoEu.png)
 
-```{rSurvSoEu, results='hide'}
+
 kmSurvSoEu <- survfit(Surv(duration,event) ~ cntry, 
                        data = df.long3[df.long3$regime == "Southern Europe",])
 ppi <- 150

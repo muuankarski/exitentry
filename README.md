@@ -32,6 +32,7 @@
 | html-page | source |
 | --------- | ------ |
 | [Survival curves of mothers returning work](ds_survival_mothers.html) | [source code](ds_survival_mothers.Rmd) |
+| [Sequence Analysis](sequence_analysis.html) | [source code](sequence_analysis.Rmd) |
 
 
 ## Ouputs for the paper
