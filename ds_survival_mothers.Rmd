@@ -225,7 +225,7 @@ ggplot(tbl, aes(x=Var2,y=Freq,fill=value)) +
 We assume that mothers on welfare benefits belong to group 8 (Other inactive) and therefore an event would change over to value 1:4 (employee/self-employed - full/part-time)
 
 
-```{rsurvivaldatacreation1}
+```{rsurvivaldatacreation1, eval=FALSE}
 datS <- dat
 # let's create an event variable
 library(reshape2)
@@ -442,7 +442,7 @@ df.long3$duration[df.long3$duration <= 0] <- NA
 df.long3$event[df.long3$value_end == 1] <- TRUE
 df.long3$event[is.na(df.long3$value_end)] <- FALSE
 
-save(df.long3, file="data/survival.RData")
+save(df.long3, file="data/df.long3.RData")
 
 ```
 
@@ -467,35 +467,19 @@ ggplot(df.long3,
 
 ```
 
-### Number of mothers on maternity leave by events by country
 
-The table below lists numbers of mothers on maternity leave in each country (`sum` column) that. Column `notHappened` has number of mother that did not exit into work, but were sencored before event took place. `happened` column has the crucial number, that is the number of mother that exited to employment.
-
-```{rsurvivalTable1, results='asis'}
-load("data/cntryDat.RData")
-
-df.long3 <- merge(df.long3,cntryDat,by.x="RB020",
-                        by.y="iso2c")
-tbl <- data.frame(table(df.long3$regime,df.long3$event))
-tblW <- dcast(tbl, Var1 ~ Var2, value.var = "Freq")
-tblW$sum <- rowSums(tblW[,2:3])
-names(tblW) <- c("cntry","notHappened","happened","sum")
-#kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
-library(xtable)
-print.xtable(xtable(tblW), type="html")
-
-```
 
 
 ```{rSurvivalcurves, results='hide'}
 library(survival)
 source("survival/ggsurv.R")
-load("data/survival.RData")
+load("data/df.long3.RData")
 load("data/cntryDat.RData")
 #kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
 df.long3$cntry <- NULL
 df.long3 <- merge(df.long3,cntryDat,by.x="RB020",
                    by.y="iso2c")
+
 
 ```
 
@@ -522,7 +506,39 @@ summary(cnt)
 # Survival curves for the paper
 
 
+**Number of mothers on maternity leave by events by country**
+
+The table below lists numbers of mothers on maternity leave in each country (`sum` column) that. Column `notHappened` has number of mother that did not exit into work, but were sencored before event took place. `happened` column has the crucial number, that is the number of mother that exited to employment.
+
+```{rsurvivalTable1, results='asis'}
+load("data/cntryDat.RData")
+
+df.long3 <- merge(df.long3,cntryDat,by.x="RB020",
+                        by.y="iso2c")
+tbl <- data.frame(table(df.long3$regime,df.long3$event))
+tblW <- dcast(tbl, Var1 ~ Var2, value.var = "Freq")
+tblW$sum <- rowSums(tblW[,2:3])
+names(tblW) <- c("cntry","notHappened","happened","sum")
+#kmsurvival <- survfit(Surv(df.long3$duration,df.long3$event) ~ 1)
+library(xtable)
+print.xtable(xtable(tblW), type="html")
+
+```
+
+## Regime level (still useless..)
+
+```{rRegimeTesti}
+source("survival/ggkm.R")
+reg <- survfit(Surv(duration,event) ~ regime, 
+                       data = df.long3)
+ggkm(reg, timeby=500)
+
+```
+
+
+
 ## By Regime
+
 
 
 
