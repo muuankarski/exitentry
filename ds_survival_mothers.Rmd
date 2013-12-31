@@ -535,6 +535,8 @@ ggsave(plot,file="figure/KaplanMeier.png",
 [Load for Ms Word](figure/KaplanMeier.png)
 
 
+
+
 <!--
 Survival curves for the paper
 
