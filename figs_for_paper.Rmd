@@ -147,9 +147,11 @@ neetL$cntry <- factor(neetL$cntry,
                       levels=order.data$cntry)
 ```
 
+## As line plot
 
 ```{ryouthUnemploymentPlot, results='hide'}
 library(ggplot2)
+library(grid)
 plot <- ggplot(neetL, aes(x=cntry,group=cntry)) +
     geom_path(data=neetL,aes(x=cntry,y=valueNum,
                              group=cntry,
@@ -176,13 +178,80 @@ ggsave(plot,file="figure/NEETunEmployment.png",
        width=14/2.54, 
        height=12/2.54, 
        dpi=300)
-
-
 ```
 
 ![](figure/NEETunEmployment.png)
 
 - [For MS Word](figure/NEETunEmployment.png)
+
+## As dodged barplot
+
+```{ryouthUnemploymentPlotD, results='hide'}
+library(ggplot2)
+plot <- ggplot(neetL, aes(x=cntry,y=valueNum,
+                          fill=variable, label=valueNum)) +
+    geom_bar(stat="identity", position="dodge") +
+  theme_minimal() +
+  geom_text(vjust=-.2,
+            position=position_dodge(width = 1),
+            size=1.6) +
+  scale_fill_manual(values = cbbPalette) + 
+  labs(x="",y="15-29 year-olds who are neither \n in employment nor in education or training") +
+  theme(legend.title=element_blank()) +
+  theme(legend.text=element_text(size=6)) +
+  theme(legend.position="top") +
+  theme(axis.title = element_text(size=6, colour="dim grey")) +
+  theme(axis.text = element_text(size=6, colour="dim grey")) +
+  theme(axis.ticks = element_line(colour="dim grey")) +
+  guides(color = guide_legend(nrow = 2)) +
+  theme(legend.key.size = unit(3, "mm")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+
+ggsave(plot,file="figure/NEETunEmploymentD.png",
+       width=14/2.54, 
+       height=12/2.54, 
+       dpi=300)
+```
+
+![](figure/NEETunEmploymentD.png)
+
+- [For MS Word](figure/NEETunEmploymentD.png)
+
+## As stacked barplot
+
+```{ryouthUnemploymentPlotS, results='hide'}
+library(ggplot2)
+plot <- ggplot(neetL, aes(x=cntry,y=valueNum,
+                          label=valueNum,fill=variable,
+                          order=variable)) +
+  geom_bar(stat="identity", position="stack") +
+  theme_minimal() +
+  geom_text(vjust=-.2,
+            position=position_stack(width = 1),
+            size=2) +
+  scale_fill_manual(values = cbbPalette) + 
+  labs(x="",y="15-29 year-olds who are neither \n in employment nor in education or training") +
+  theme(legend.title=element_blank()) +
+  theme(legend.text=element_text(size=6)) +
+  theme(legend.position="top") +
+  theme(axis.title = element_text(size=6, colour="dim grey")) +
+  theme(axis.text = element_text(size=6, colour="dim grey")) +
+  theme(axis.ticks = element_line(colour="dim grey")) +
+  guides(color = guide_legend(nrow = 2)) +
+  theme(legend.key.size = unit(3, "mm")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+
+ggsave(plot,file="figure/NEETunEmploymentS.png",
+       width=14/2.54, 
+       height=12/2.54, 
+       dpi=300)
+```
+
+![](figure/NEETunEmploymentS.png)
+
+- [For MS Word](figure/NEETunEmploymentS.png)
+
+
 
 
 # Female labor force participation rates (%) according to age in different welfare state regimes 1980 and 2010
@@ -234,7 +303,7 @@ plot <- ggplot(laborDat, aes(x=year,y=plf_flf,
 
 ggsave(plot,file="figure/FemaleLaborForce.png",
        width=14/2.54, 
-       height=16/2.54, 
+       height=14/2.54, 
        dpi=300)
 ```
 
@@ -301,7 +370,7 @@ plot <- ggplot(datL, aes(x=variable,y=value,
 
 ggsave(plot,file="figure/GenderPayGap.png",
        width=14/2.54, 
-       height=16/2.54, 
+       height=14/2.54, 
        dpi=300)
 
 
