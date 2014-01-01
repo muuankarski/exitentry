@@ -48,7 +48,7 @@ print.xtable(xtable(cntryDat), type="html",
 ```
 
 
-# Old age dependency rations in Europe 2010 - 2060
+# Old age dependency rations in Europe 2010 - 2050
 
 *data source*: 
 - [past](http://epp.eurostat.ec.europa.eu/tgm/table.do?tab=table&init=1&language=en&pcode=tsdde510&plugin=0)
@@ -64,7 +64,7 @@ Oe <- rawOe[rawOe$time >= 1990,]
 rawOeP <- getEurostatRCV(kod = "tsdde511")
 rawOeP$time <- as.numeric(levels(rawOeP$time))[rawOeP$time]
 OeP <- rawOeP[rawOeP$time >= 2015,]
-OeP <- OeP[OeP$time <= 2060,]
+OeP <- OeP[OeP$time <= 2050,]
 datOe <- rbind(Oe,OeP)
 datOe <- merge(datOe,cntryDat,by.x="geo",
                by.y="iso2c")
@@ -74,27 +74,28 @@ datOe <- merge(datOe,cntryDat,by.x="geo",
 library(ggplot2)
 plot <- ggplot(datOe, aes(x=time,y=value,color=regime,group=geo)) +
   geom_point(size=1.5) + geom_line(size=.5) + 
-  annotate("rect", xmin = 2012, xmax = 2060, 
-    ymin = 5, ymax = 65, alpha = 0.1) +
+  annotate("segment", x = 2012, xend = 2012, y = 5, 
+           yend = 65, colour = "dim Grey", linetype="dotted") +
   theme_minimal() +
   scale_color_manual(values = cbbPalette) + 
-  annotate("text", x = 2040, y = 15, label = "Projected",size=2) +
-  labs(x="year",y="Old age dependency ration") +
+  annotate("text", x = 2020, y = 50, label = "Projected", size=2) +
+  annotate("text", x = 2004, y = 50, label = "Observed", size=2) +
+  labs(x="",y="Old age dependency ratio") +
   theme(legend.position="top") +
   geom_text(data=merge(datOe, aggregate(time ~ geo, datOe, max),
                             by=c("time","geo")),
                  aes(x=time,y=value,label=cntry),
                  hjust=-.1,size=2) +
-  coord_cartesian(xlim=c(1990,2070)) +
-    theme(legend.title=element_blank()) +
+  coord_cartesian(xlim=c(1990,2060)) +
+  theme(legend.title=element_blank()) +
   theme(legend.text=element_text(size=6)) +
   theme(legend.position="top") +
-  theme(axis.title.y = element_text(size=6)) +
-  theme(axis.title.x = element_text(size=6)) +
-  theme(axis.text.y = element_text(size=6)) +
-  theme(axis.text.x = element_text(size=6)) +
+  theme(axis.title = element_text(size=6, colour="dim grey")) +
+  theme(axis.text = element_text(size=6, colour="dim grey")) +
+  theme(axis.ticks = element_line(colour="dim grey")) +
   guides(color = guide_legend(nrow = 2)) +
-  theme(legend.key.size = unit(3, "mm"))
+  theme(legend.key.size = unit(3, "mm")) +
+  scale_x_continuous(breaks = seq(1990, 2050, by=5))
 
 ggsave(plot,file="figure/OaDependencyRatio.png",
        width=14/2.54, 
@@ -163,10 +164,9 @@ plot <- ggplot(neetL, aes(x=cntry,group=cntry)) +
   theme(legend.title=element_blank()) +
   theme(legend.text=element_text(size=6)) +
   theme(legend.position="top") +
-  theme(axis.title.y = element_text(size=6)) +
-  theme(axis.title.x = element_text(size=6)) +
-  theme(axis.text.y = element_text(size=6)) +
-  theme(axis.text.x = element_text(size=6)) +
+  theme(axis.title = element_text(size=6, colour="dim grey")) +
+  theme(axis.text = element_text(size=6, colour="dim grey")) +
+  theme(axis.ticks = element_line(colour="dim grey")) +
   guides(color = guide_legend(nrow = 2)) +
   theme(legend.key.size = unit(3, "mm")) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
@@ -195,6 +195,9 @@ dat <- read.csv("data/qog_soc_tsl_4apr12.csv", sep = ";")
 #
 dat2 <- dat[c("cname","year","plf_flf")]
 dat2 <- dat2[dat2$year >= 1980,]
+dat2$cname <- as.character(dat2$cname)
+dat2$cname[dat2$cname %in% "Korea, South"] <- "Korea"
+dat2$cname <- factor(dat2$cname)
 laborDat <- merge(dat2,cntryDat,by.x="cname",by.y="cntry")
 laborDat <- laborDat[!is.na(laborDat$plf_flf), ]
 
@@ -217,12 +220,12 @@ plot <- ggplot(laborDat, aes(x=year,y=plf_flf,
   coord_cartesian(xlim=c(1980,2015)) +
   theme(legend.title=element_blank()) +
   theme(legend.text=element_text(size=6)) +
-  theme(legend.position="top") +
+  theme(legend.position="none") +
   scale_color_manual(values = cbbPalette) + 
-  theme(axis.title.y = element_text(size=6)) +
-  theme(axis.title.x = element_text(size=6)) +
-  theme(axis.text.y = element_text(size=6)) +
-  theme(axis.text.x = element_text(size=6)) +
+  theme(axis.title = element_text(size=6, colour="dim grey")) +
+  theme(axis.text = element_text(size=6, colour="dim grey")) +
+  theme(axis.ticks = element_line(colour="dim grey")) +
+  theme(strip.text = element_text(size=6, colour="dim grey")) +
   guides(color = guide_legend(nrow = 2)) +
   theme(legend.key.size = unit(3, "mm")) +
   facet_wrap(~regime, ncol=2)  +
@@ -272,7 +275,7 @@ plot <- ggplot(datL, aes(x=variable,y=value,
                      group=Country,color=regime)) +
   geom_point(size=1.5) + geom_line(size=.5) + 
   theme_minimal() +
-  labs(x="year",y="Gender wage gap (%)") +
+  labs(x="",y="Gender wage gap (%)") +
   geom_text(data=merge(datL, 
                        aggregate(variable ~ Country, datL, max),
                             by=c("variable","Country")),
@@ -281,16 +284,18 @@ plot <- ggplot(datL, aes(x=variable,y=value,
   coord_cartesian(xlim=c(2000,2013)) +
   theme(legend.title=element_blank()) +
   theme(legend.text=element_text(size=6)) +
-  theme(legend.position="top") +
+  theme(legend.position="none") +
   scale_color_manual(values = cbbPalette) + 
-  theme(axis.title.y = element_text(size=6)) +
-  theme(axis.title.x = element_text(size=6)) +
-  theme(axis.text.y = element_text(size=6)) +
-  theme(axis.text.x = element_text(size=6)) +
+  theme(axis.title = element_text(size=6, colour="dim grey")) +
+  theme(axis.text = element_text(size=6, colour="dim grey")) +
+  theme(axis.ticks = element_line(colour="dim grey")) +
+  theme(strip.text = element_text(size=6, colour="dim grey")) + 
   guides(color = guide_legend(nrow = 2)) +
   theme(legend.key.size = unit(3, "mm")) +
   facet_wrap(~regime, ncol=2)  +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) + 
+  scale_x_continuous(breaks = seq(2000, 2014, by=2))
+
 
 
 ggsave(plot,file="figure/GenderPayGap.png",
@@ -309,12 +314,12 @@ ggsave(plot,file="figure/GenderPayGap.png",
 # Distribution of age of women given birth
 
 ```{rsubsetentermaterintyhistogram}
-load("data/datEnterBirth.RData")
 load("data/datEnterBirth2.RData")
 
 datTm <- datEnterBirth2[datEnterBirth2$year==datEnterBirth2$RB010,]
 
 library(ggplot2)
+library(grid)
 
 datTm <- merge(datTm,cntryDat,by.x="RB020",by.y="iso2c")
 
@@ -330,10 +335,9 @@ plot <- ggplot(data=datTm,
   theme(legend.title=element_blank()) +
   theme(legend.text=element_text(size=6)) +
   theme(legend.position="top") +
-  theme(axis.title.y = element_text(size=6)) +
-  theme(axis.title.x = element_text(size=6)) +
-  theme(axis.text.y = element_text(size=6)) +
-  theme(axis.text.x = element_text(size=6)) +
+  theme(axis.title = element_text(size=6, colour="dim grey")) +
+  theme(axis.text = element_text(size=6, colour="dim grey")) +
+  theme(axis.ticks = element_line(colour="dim grey")) +
   theme(legend.key.size = unit(3, "mm")) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+
   coord_cartesian(ylim=c(15,60))
@@ -360,15 +364,33 @@ df.long4$cntry <- NULL
 df.long4 <- merge(df.long4,cntryDat,by.x="RB020",
                    by.y="iso2c")
 
+# lets remove liberal & post soc regimes
+df.long5 <- df.long4[df.long4$regime %in% c("Central Europe","Nordic","Southern Europe"),]
+reg <- survfit(Surv(df.long5$duration,df.long5$event) ~ df.long5$regime)
+
 source("survival/ggsurvMod.R")
-plot <- ggsurv(reg)
+plot <- ggsurv(reg, plot.cens=FALSE)
+plotCI <- ggsurv(reg, CI=TRUE, plot.cens=FALSE)
 
 ggsave(plot,file="figure/KaplanMeier.png",
        width=14/2.54, 
        height=10/2.54, 
        dpi=300)
 
+ggsave(plotCI,file="figure/KaplanMeierCI.png",
+       width=14/2.54, 
+       height=10/2.54, 
+       dpi=300)
+
 ```
+
+## With CI
+
+![](figure/KaplanMeierCI.png)
+
+[Load for Ms Word](figure/KaplanMeierCI.png)
+
+## Without CI
 
 ![](figure/KaplanMeier.png)
 

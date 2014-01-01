@@ -452,6 +452,7 @@ datEnterBirth$time <- datEnterBirth$RB010 - datEnterBirth$year
 # so let's exclude cases missing that information
 datEnterBirth$dup <- duplicated(datEnterBirth$PER_ID_Y)
 datEnterBirth <- datEnterBirth[datEnterBirth$dup == FALSE, ]
+library(reshape2)
 datEnterBirth.l <- dcast(datEnterBirth, RB020 + PER_ID ~ time, value.var="RX010")
 names(datEnterBirth.l) <- c("RB020","PER_ID","xm5","xm4","xm3","xm2","xm1","x0","xp1","xp2","xp3","xp4","xp5")
 datEnterBirth.l$cond[datEnterBirth.l$xm1 >= 0 & datEnterBirth.l$x0 >= 0 & datEnterBirth.l$xp1 >= 0] <- 1
