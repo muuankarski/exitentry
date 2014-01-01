@@ -396,3 +396,37 @@ ggsave(plotCI,file="figure/KaplanMeierCI.png",
 ![](figure/KaplanMeier.png)
 
 [Load for Ms Word](figure/KaplanMeier.png)
+
+## With Post Soc
+
+```{rsurvivalPostSoc}
+df.long5 <- df.long4[df.long4$regime %in% c("Central Europe","Nordic","Southern Europe","Post Soc"),]
+
+reg <- survfit(Surv(df.long5$duration,df.long5$event) ~ df.long5$regime)
+
+source("survival/ggsurvMod.R")
+plot <- ggsurv(reg, plot.cens=FALSE)
+plotCI <- ggsurv(reg, CI=TRUE, plot.cens=FALSE)
+
+ggsave(plot,file="figure/KaplanMeierPS.png",
+       width=14/2.54, 
+       height=10/2.54, 
+       dpi=300)
+
+ggsave(plotCI,file="figure/KaplanMeierCIPS.png",
+       width=14/2.54, 
+       height=10/2.54, 
+       dpi=300)
+```
+
+### Without CI
+
+![](figure/KaplanMeierPS.png)
+
+[Load for Ms Word](figure/KaplanMeierPS.png)
+
+### With CI
+
+![](figure/KaplanMeierCIPS.png)
+
+[Load for Ms Word](figure/KaplanMeierCIPS.png)
