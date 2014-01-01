@@ -314,6 +314,8 @@ ggsave(plot,file="figure/GenderPayGap.png",
 
 # Distribution of age of women given birth
 
+## All women gien birth
+
 ```{rsubsetentermaterintyhistogram}
 load("data/datEnterBirth2.RData")
 
@@ -332,7 +334,7 @@ plot <- ggplot(data=datTm,
   scale_fill_manual(values=cbbPalette) +
   theme_minimal() +
   theme(legend.position="top") +
-  labs(x="",y="Age of mothers") +
+  labs(x="",y="Age") +
   theme(legend.title=element_blank()) +
   theme(legend.text=element_text(size=6)) +
   theme(legend.position="top") +
@@ -349,10 +351,55 @@ ggsave(plot,file="figure/MotherAge.png",
        dpi=300)
 ```
 
-
 ![](figure/MotherAge.png)
 
 - [For MS Word](figure/MotherAge.png)
+
+## First birts
+
+```{rsubsetentermaterintyhistogramFirstBirth}
+rm()
+load("data/datEnterBirth.RData")
+load("data/cntryDat.RData")
+
+datTm <- datEnterBirth[datEnterBirth$firstBirth == 1, ]
+datTm$dup  <- duplicated(datTm$RB030)
+datTm <- datTm[datTm$dup == FALSE,]
+library(ggplot2)
+library(grid)
+
+datTm <- merge(datTm,cntryDat,by.x="RB020",by.y="iso2c")
+
+plot <- ggplot(data=datTm, 
+       aes(x=factor(reorder(cntry, RX010, median, na.rm=TRUE)),
+           y=RX010,
+           fill=regime)) + 
+  geom_boxplot() +
+  scale_fill_manual(values=cbbPalette) +
+  theme_minimal() +
+  theme(legend.position="top") +
+  labs(x="",y="Age") +
+  theme(legend.title=element_blank()) +
+  theme(legend.text=element_text(size=6)) +
+  theme(legend.position="top") +
+  theme(axis.title = element_text(size=6, colour="dim grey")) +
+  theme(axis.text = element_text(size=6, colour="dim grey")) +
+  theme(axis.ticks = element_line(colour="dim grey")) +
+  theme(legend.key.size = unit(3, "mm")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))+
+  coord_cartesian(ylim=c(15,45))
+  
+ggsave(plot,file="figure/MotherAgeFB.png",
+       width=14/2.54, 
+       height=10/2.54, 
+       dpi=300)
+```
+
+
+![](figure/MotherAgeFB.png)
+
+- [For MS Word](figure/MotherAgeFB.png)
+
 
 # Survival curves
 

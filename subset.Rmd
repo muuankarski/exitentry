@@ -452,13 +452,37 @@ datEnterBirth$time <- datEnterBirth$RB010 - datEnterBirth$year
 # so let's exclude cases missing that information
 datEnterBirth$dup <- duplicated(datEnterBirth$PER_ID_Y)
 datEnterBirth <- datEnterBirth[datEnterBirth$dup == FALSE, ]
+
+## First birth
+datEnterBirth$childNr[datEnterBirth$HX050 == 1] <- 0
+datEnterBirth$childNr[datEnterBirth$HX050 == 1.5] <- 0
+datEnterBirth$childNr[datEnterBirth$HX050 == 1.3] <- 1
+datEnterBirth$childNr[datEnterBirth$HX050 == 1.3] <- 1
+datEnterBirth$childNr[datEnterBirth$HX050 == 1.8] <- 1
+datEnterBirth$childNr[datEnterBirth$HX050 == 2.3] <- 1
+datEnterBirth$childNr[datEnterBirth$HX050 == 2.8] <- 1
+datEnterBirth$childNr[datEnterBirth$HX050 == 3.3] <- 1
+datEnterBirth$childNr[datEnterBirth$HX050 == 3.8] <- 1
+datEnterBirth$childNr[datEnterBirth$HX050 == 4.3] <- 1
+datEnterBirth$childNr[datEnterBirth$HX050 == 1.6] <- 2
+datEnterBirth$childNr[datEnterBirth$HX050 == 2.1] <- 2
+datEnterBirth$childNr[!(datEnterBirth$childNr %in% 0:2)] <- 3
+                    
+datEnterBirth$firstBirth <- ifelse(datEnterBirth$childNr == 0 & datEnterBirth$time == -1, 1, 0)
+#
 library(reshape2)
-datEnterBirth.l <- dcast(datEnterBirth, RB020 + PER_ID ~ time, value.var="RX010")
-names(datEnterBirth.l) <- c("RB020","PER_ID","xm5","xm4","xm3","xm2","xm1","x0","xp1","xp2","xp3","xp4","xp5")
+datEnterBirth.l <- dcast(datEnterBirth, RB020 + PER_ID + firstBirth ~ time, value.var="RX010")
+names(datEnterBirth.l) <- c("RB020","PER_ID",
+                            "firstBirth","xm5",
+                            "xm4","xm3","xm2",
+                            "xm1","x0","xp1",
+                            "xp2","xp3",
+                            "xp4","xp5")
+
 datEnterBirth.l$cond[datEnterBirth.l$xm1 >= 0 & datEnterBirth.l$x0 >= 0 & datEnterBirth.l$xp1 >= 0] <- 1
 cond <- datEnterBirth.l[!is.na(datEnterBirth.l$cond), ]
-cond <- cond[,1:2]
-datEnterBirth2 <- merge(cond,datEnterBirth,by=c("RB020","PER_ID"))
+cond <- cond[,1:3]
+datEnterBirth2 <- merge(cond,datEnterBirth,by=c("RB020","PER_ID","firstBirth"))
 #
 save(datEnterBirth, file="data/datEnterBirth.RData")
 save(datEnterBirth2, file="data/datEnterBirth2.RData")
