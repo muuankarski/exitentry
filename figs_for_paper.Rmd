@@ -103,6 +103,7 @@ ggsave(plot,file="figure/OaDependencyRatio.png",
        dpi=300)
 ```
 
+
 ![](figure/OaDependencyRatio.png)
 
 - [For MS Word](figure/OaDependencyRatio.png)
